@@ -1,6 +1,6 @@
-import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import InputFrame from './components/inputFrame';
 
 function App() {
   return (
@@ -9,6 +9,7 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.tsx</code> and reload to reload.
+          <InputFrame />
         </p>
         <a
           className="App-link"
