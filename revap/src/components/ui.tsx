@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { FileUploader } from "react-drag-drop-files";
+import Button from '@mui/material/Button';
+import XLSX from 'xlsx'
 //from evapotranspiration import load_data, SoilData, calculateDecimalDegrees
 //from common import save_result_to_system, get_cache_file_path
 //from calculations import run_scenario, deg2Rad
@@ -100,7 +103,7 @@ interface SoilData {
 // DONE WITH CHATGPT
 type IndexDate = { [year: number]: { [month: number]: { [day: number]: number[] } } };
 
-function index_by_date(data: Date[]): IndexDate {
+function indexByDate(data: Date[]): IndexDate {
     const indexDate: IndexDate = {};
 
     data.forEach((date, index) => {
@@ -126,7 +129,7 @@ function index_by_date(data: Date[]): IndexDate {
 // ** DONE WITH CHATGPT
 
 // DONE WITH CHATGPT
-function get_data_at(data: SoilData, indexes: number[]): SoilData {
+function getDataAt(data: SoilData, indexes: number[]): SoilData {
     const new_data: SoilData = { date: [], H: [], TA: [], HR: [], VV: [], RS: [], PR: [] };
 
     indexes.forEach(index => {
@@ -143,7 +146,7 @@ function get_data_at(data: SoilData, indexes: number[]): SoilData {
 }
 // ** DONE WITH CHATGPT
 
-function values_for_variable(variable_data: number[]): { [key: string]: number } {
+function valuesForVariable(variable_data: number[]): { [key: string]: number } {
     const values: { [key: string]: number } = {
         'avg': variable_data.reduce((acc, val) => acc + val, 0) / variable_data.length,
         'min': Math.min(...variable_data),
@@ -162,74 +165,81 @@ interface SoilData {
     PR: number[];
 }
 
-function load_data(file: string): SoilData {
-    const wb = openpyxl.load_workbook(file);
-    const ws = wb['Datos'];
-    const spreadsheet_data: SoilData = { date: [], H: [], TA: [], HR: [], VV: [], RS: [], PR: [] };
-    if (ws) {
-        ws.iter_rows({ minRow: 2 }).forEach((row: any) => {
-            spreadsheet_data.date.push(row[0].value as Date);
-            spreadsheet_data.H.push(row[1].value as Date);
-            spreadsheet_data.TA.push(parseFloat(row[2].value as string));
-            spreadsheet_data.HR.push(row[3].value as number);
-            spreadsheet_data.VV.push(parseFloat(row[4].value as string));
-            spreadsheet_data.RS.push(row[5].value as number);
-            spreadsheet_data.PR.push(parseFloat(row[6].value as string));
-        });
-    }
-    return spreadsheet_data;
+// usage: file_to_wb(file, function(wb) { /* wb is a workbook object */ });
+function file_to_wb(file: any, callback: any) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    /* e.target.result is an ArrayBuffer */
+    if (e.target)
+        callback(XLSX.read(e.target.result));
+  };
+  reader.readAsArrayBuffer(file);
 }
+
+interface RowData {
+    H: Date;
+    HR: number;
+    PR: string;
+    RS: number;
+    TA: string;
+    VV: string;
+    date: Date;
+};
+
+type TestData = RowData[];
+
+
 
 function calculateDecimalDegrees(degrees: number, minutes: number, seconds: number): number {
     return degrees + (minutes / 60) + (seconds / 3600);
 }
 
-function calculate_wind_velocity(vv_avg: number, constants: { [key: string]: number }): number {
+function calculateWindVelocity(vv_avg: number, constants: SolarRadiationConstants): number {
     const velocity = vv_avg * (4.87 / (Math.log((67.8 * constants.measure_height_c) - 5.42)));
     return velocity;
 }
 
-function calculate_saturate_steam(ta_max: number, ta_min: number): { [key: string]: number } {
+function calculateSaturateSteam(ta_max: number, ta_min: number): { [key: string]: number } {
     const e_t_max = 0.6108 * Math.exp((17.27 * ta_max) / (ta_max + 237.3));
     const e_t_min = 0.6108 * Math.exp((17.27 * ta_min) / (ta_min + 237.3));
     const avg_p = (e_t_max + e_t_min) / 2.0;
     return { 'e_t_max': e_t_max, 'e_t_min': e_t_min, 'avg_p': avg_p };
 }
 
-function calculate_saturate_slope(ta_avg: number): number {
+function calculateSaturateSlope(ta_avg: number): number {
     const slope = (4098 * (0.6108 * Math.exp((17.27 * ta_avg) / (ta_avg + 237.3)))) / Math.pow((ta_avg + 237.3), 2);
     return slope;
 }
 
-function calculate_real_steam_pressure(ta_min: number, ta_max: number, hr_min: number, hr_max: number): number {
+function calculateRealSteamPressure(ta_min: number, ta_max: number, hr_min: number, hr_max: number): number {
     const first_factor = (0.6108 * Math.exp((17.27 * ta_min) / (ta_min + 237.3))) * (hr_max / 100);
     const second_factor = (0.6108 * Math.exp((17.27 * ta_max) / (ta_max + 237.3))) * (hr_min / 100);
     const real_pressure = (first_factor + second_factor) / 2.0;
     return real_pressure;
 }
 
-function calculate_steam_pressure_deficit(avg_pressure: number, real_pressure: number): number {
+function calculateSteamPressureDeficit(avg_pressure: number, real_pressure: number): number {
     const pressure_deficit = avg_pressure - real_pressure;
     return pressure_deficit;
 }
 
-function calculate_solar_radiation(rs_avg: number): number {
+function calculateSolarRadiation(rs_avg: number): number {
     const solar_radiation = rs_avg * 0.0864;
     return solar_radiation;
 }
 
-function calculate_julian_day(month: number, day: number): number {
+function calculateJulianDay(month: number, day: number): number {
     const julian_day = ((275 * (month / 9)) - 30 + day) - 2;
     return julian_day;
 }
 
-function calculate_relative_distance(julian_day: number): number {
+function calculateRelativeDistance(julian_day: number): number {
     const relative_distance = 1 + (0.033 * Math.cos((2 * Math.PI * julian_day) / 365));
     return relative_distance;
 }
 
-
 interface SolarRadiationConstants {
+    measure_height_c: number;
     latitude_rad_c: number;
     solar_c: number;
     max_point_c: number;
@@ -243,11 +253,11 @@ interface SolarRadiationConstants {
     soil_depth_c: number;
 }
 
-function calculate_solar_declination(julian_day: number): number {
+function calculateSolarDeclination(julian_day: number): number {
     return 0.409 * (Math.sin((((2 * Math.PI) * (julian_day / 365)) - 1.39)));
 }
 
-function calculate_hourly_radicion_angle(julian_day: number, solar_declination: number, constants: SolarRadiationConstants): { [key: string]: number } {
+function calculateHourlyRadicionAngle(julian_day: number, solar_declination: number, constants: SolarRadiationConstants): { [key: string]: number } {
     const value_b = (2 * Math.PI * (julian_day - 81)) / 364;
     const seccional_correction = (0.1645 * Math.sin(2 * value_b)) - (0.1255 * Math.cos(value_b)) - (0.025 * Math.sin(value_b));
     const sunset = Math.acos(-Math.tan(constants.latitude_rad_c) * Math.tan(solar_declination));
@@ -257,22 +267,22 @@ function calculate_hourly_radicion_angle(julian_day: number, solar_declination: 
     return { value_b, seccional_correction, sunset, sun_middle_point, start, end };
 }
 
-function calculate_extraterrestrial_radiation(constants: SolarRadiationConstants, relative_distance: number, solar_declination: number, sunset: number, sun_middle_point: number): number {
+function calculateExtraterrestrialRadiation(constants: SolarRadiationConstants, relative_distance: number, solar_declination: number, sunset: number, sun_middle_point: number): number {
     const ra = ((24 * 60) / Math.PI) * (constants.solar_c * relative_distance) * ((sunset * Math.sin(constants.latitude_rad_c) * Math.sin(solar_declination)) + (Math.cos(constants.latitude_rad_c) * Math.cos(solar_declination) * Math.sin(sun_middle_point)));
     return ra;
 }
 
-function calculate_max_duration(sunset: number): number {
+function calculateMaxDuration(sunset: number): number {
     const max_duration = (24 / Math.PI) * sunset;
     return max_duration;
 }
 
-function calculate_r_so(constants: SolarRadiationConstants, extraterrestrial_radiation: number): number {
+function calculateRSo(constants: SolarRadiationConstants, extraterrestrial_radiation: number): number {
     const r_so = (0.75 + 2 * Math.pow(10, -5) * constants.height_c) * extraterrestrial_radiation;
     return r_so;
 }
 
-function calculate_radiations(constants: SolarRadiationConstants, solar_radiation: number, r_so: number,
+function calculateRadiations(constants: SolarRadiationConstants, solar_radiation: number, r_so: number,
     ta_max: number, ta_min: number, p_real: number): { [key: string]: number } {
     const short_wave_radiation = (1 - constants.albedo_c) * solar_radiation;
     const relative_radiation = solar_radiation / r_so;
@@ -281,12 +291,12 @@ function calculate_radiations(constants: SolarRadiationConstants, solar_radiatio
     return { short_wave: short_wave_radiation, relative: relative_radiation, long_wave: long_wave_radiation, net: net_radiation };
 }
 
-function calculate_soil_heat_flux(constants: SolarRadiationConstants, ta_avg: number, prev_ta_avg: number, amount_of_days: number): number {
+function calculateSoilHeatFlux(constants: SolarRadiationConstants, ta_avg: number, prev_ta_avg: number, amount_of_days: number): number {
     const heat_flux = constants.caloric_capacity_c * ((ta_avg - prev_ta_avg) / amount_of_days) * constants.soil_depth_c;
     return heat_flux;
 }
 
-function calculate_evapotranspiration(saturation_slope: number, net_radiation: number, soil_heat_flux: number,
+function calculateEvapotranspiration(saturation_slope: number, net_radiation: number, soil_heat_flux: number,
     wind_velocity: number, ta_avg: number, steam_pressure_deficit: number,
     constants: SolarRadiationConstants): number {
     const numerator_1 = 0.408 * saturation_slope * (net_radiation - soil_heat_flux);
@@ -296,7 +306,183 @@ function calculate_evapotranspiration(saturation_slope: number, net_radiation: n
     return evapotranspiration;
 }
 
-export default function ui() {
+function appendWithSeparator(source: string, destination: string): string {
+    let transformed: string = destination;
+    transformed = transformed + ";" + source;
+    return transformed;
+}
+
+function stringifyIteration(
+    taValues: Record<string, number>,
+    hrValues: Record<string, number>,
+    vvValues: Record<string, number>,
+    rsValues: Record<string, number>,
+    prValues: Record<string, number>,
+    windVelocity: number,
+    saturationSlope: number,
+    satSteam: Record<string, number>,
+    pReal: number,
+    steamPressureDeficit: number,
+    solarRadiation: number,
+    julianDay: number,
+    relativeDistance: number,
+    solarDeclination: number,
+    hourlyRadicionAngle: Record<string, number>,
+    extraterrestrialRadiation: number,
+    maxDuration: number,
+    rSo: number,
+    radiations: Record<string, number>,
+    soilHeatFlux: number,
+    evapotranspiration: number,
+    year: number,
+    month: number,
+    day: number,
+    amountOfDays: number
+): string {
+    let finalString: string = `${month}/${day}/${year}`;
+    finalString = appendWithSeparator(String(amountOfDays), finalString);
+    finalString = appendWithSeparator((taValues['avg']).toFixed(3), finalString);
+    finalString = appendWithSeparator((hrValues['avg']).toFixed(3), finalString);
+    finalString = appendWithSeparator((vvValues['avg']).toFixed(3), finalString);
+    finalString = appendWithSeparator((rsValues['avg']).toFixed(3), finalString);
+    finalString = appendWithSeparator((prValues['avg']).toFixed(3), finalString);
+    finalString = appendWithSeparator((taValues['min']).toFixed(3), finalString);
+    finalString = appendWithSeparator((hrValues['min']).toFixed(3), finalString);
+    finalString = appendWithSeparator((vvValues['min']).toFixed(3), finalString);
+    finalString = appendWithSeparator((rsValues['min']).toFixed(3), finalString);
+    finalString = appendWithSeparator((prValues['min']).toFixed(3), finalString);
+    finalString = appendWithSeparator((taValues['max']).toFixed(3), finalString);
+    finalString = appendWithSeparator((hrValues['max']).toFixed(3), finalString);
+    finalString = appendWithSeparator((vvValues['max']).toFixed(3), finalString);
+    finalString = appendWithSeparator((rsValues['max']).toFixed(3), finalString);
+    finalString = appendWithSeparator((prValues['max']).toFixed(3), finalString);
+    finalString = appendWithSeparator(windVelocity.toFixed(3), finalString);
+    finalString = appendWithSeparator((satSteam['e_t_max']).toFixed(3), finalString);
+    finalString = appendWithSeparator((satSteam['e_t_min']).toFixed(3), finalString);
+    finalString = appendWithSeparator((satSteam['avg_p']).toFixed(3), finalString);
+    finalString = appendWithSeparator(saturationSlope.toFixed(3), finalString);
+    finalString = appendWithSeparator(pReal.toFixed(3), finalString);
+    finalString = appendWithSeparator(steamPressureDeficit.toFixed(3), finalString);
+    finalString = appendWithSeparator(solarRadiation.toFixed(3), finalString);
+    finalString = appendWithSeparator(julianDay.toFixed(3), finalString);
+    finalString = appendWithSeparator(relativeDistance.toFixed(3), finalString);
+    finalString = appendWithSeparator(solarDeclination.toFixed(3), finalString);
+    finalString = appendWithSeparator((hourlyRadicionAngle['value_b']).toFixed(3), finalString);
+    finalString = appendWithSeparator((hourlyRadicionAngle['seccional_correction']).toFixed(3), finalString);
+    finalString = appendWithSeparator((hourlyRadicionAngle['sunset']).toFixed(3), finalString);
+    finalString = appendWithSeparator((hourlyRadicionAngle['sun_middle_point']).toFixed(3), finalString);
+    finalString = appendWithSeparator((hourlyRadicionAngle['start']).toFixed(3), finalString);
+    finalString = appendWithSeparator((hourlyRadicionAngle['end']).toFixed(3), finalString);
+    finalString = appendWithSeparator(extraterrestrialRadiation.toFixed(3), finalString);
+    finalString = appendWithSeparator(maxDuration.toFixed(3), finalString);
+    finalString = appendWithSeparator(rSo.toFixed(3), finalString);
+    finalString = appendWithSeparator((radiations['short_wave']).toFixed(3), finalString);
+    finalString = appendWithSeparator((radiations['relative']).toFixed(3), finalString);
+    finalString = appendWithSeparator((radiations['long_wave']).toFixed(3), finalString);
+    finalString = appendWithSeparator((radiations['net']).toFixed(3), finalString);
+    finalString = appendWithSeparator(soilHeatFlux.toFixed(3), finalString);
+    finalString = appendWithSeparator(evapotranspiration.toFixed(3), finalString);
+    return finalString;
+}
+
+function runScenario(
+    inputStartDate: Record<string, string>,
+    inputEndDate: Record<string, string>,
+    data: SoilData,
+    constants: SolarRadiationConstants,
+    interval: number = 0
+): boolean {
+    const indexedData = indexByDate(data.date);
+
+    // For start date
+    const startDate: { year: number; month: number; day: number } = {
+        year: inputStartDate.year === "" ? data.date[0].getFullYear() : parseInt(inputStartDate.year),
+        month: inputStartDate.month === "" ? data.date[0].getMonth() + 1 : parseInt(inputStartDate.month),
+        day: inputStartDate.day === "" ? data.date[0].getDate() : parseInt(inputStartDate.day)
+    };
+    
+    // For end date
+    const endDate: { year: number; month: number; day: number } = {
+        year: inputEndDate.year === "" ? data.date[data.date.length - 1].getFullYear() : parseInt(inputEndDate.year),
+        month: inputEndDate.month === "" ? data.date[data.date.length - 1].getMonth() + 1 : parseInt(inputEndDate.month),
+        day: inputEndDate.day === "" ? data.date[data.date.length - 1].getDate() : parseInt(inputEndDate.day)
+    };
+
+
+    if (data.date.length <= 0) {
+        console.log('No base data');
+        return false;
+    }
+
+    if (
+        startDate.year < data.date[0].getFullYear() ||
+        (startDate.month < data.date[0].getFullYear()) ||
+        (startDate.day < data.date[0].getDate() && startDate.year === data.date[0].getFullYear() && startDate.month === data.date[0].getMonth())
+    ) {
+        console.log('adjusting start date');
+        startDate.year = data.date[0].getFullYear();
+        startDate.month = data.date[0].getMonth();
+        startDate.day = data.date[0].getDate();
+    }
+
+    if (
+        endDate.year > data.date[data.date.length - 1].getFullYear() ||
+        (endDate.month > data.date[data.date.length - 1].getFullYear()) ||
+        (endDate.day > data.date[data.date.length - 1].getDate() && endDate.year === data.date[data.date.length - 1].getFullYear() && endDate.month === data.date[data.date.length - 1].getMonth())
+    ) {
+        console.log('adjusting end date');
+        endDate.year = data.date[data.date.length - 1].getFullYear();
+        endDate.month = data.date[data.date.length - 1].getMonth();
+        endDate.day = data.date[data.date.length - 1].getDate();
+    }
+
+    console.log(startDate);
+    console.log(endDate);
+
+    const csvResults: string[] = [];
+
+    let amountOfDays = 0;
+    let prevTaAvg = 0;
+
+    for (let year = startDate.year; year <= endDate.year; year++) {
+        for (let month = startDate.month; month <= endDate.month; month++) {
+            for (let day = startDate.day; day <= endDate.day; day++) {
+                amountOfDays++;
+                const dayData = getDataAt(data, indexedData[year][month][day]);
+
+                const taValues = valuesForVariable(dayData.TA);
+                const hrValues = valuesForVariable(dayData.HR);
+                const vvValues = valuesForVariable(dayData.VV);
+                const rsValues = valuesForVariable(dayData.RS);
+                const prValues = valuesForVariable(dayData.PR); // Never used for calculations
+
+                const windVelocity = calculateWindVelocity(vvValues.avg, constants);
+                const satSteam = calculateSaturateSteam(taValues.max, taValues.min);
+                const saturationSlope = calculateSaturateSlope(taValues.avg);
+                const pReal = calculateRealSteamPressure(taValues.min, taValues.max, hrValues.min, hrValues.max);
+                const steamPressureDeficit = calculateSteamPressureDeficit(satSteam.avg_p, pReal);
+                const solarRadiation = calculateSolarRadiation(rsValues.avg);
+                const julianDay = calculateJulianDay(month, day);
+                const relativeDistance = calculateRelativeDistance(julianDay);
+                const solarDeclination = calculateSolarDeclination(julianDay);
+                const hourlyRadicionAngle = calculateHourlyRadicionAngle(julianDay, solarDeclination, constants);
+                const extraterrestrialRadiation = calculateExtraterrestrialRadiation(constants, relativeDistance, solarDeclination, hourlyRadicionAngle.sunset, hourlyRadicionAngle.sun_middle_point);
+                const maxDuration = calculateMaxDuration(hourlyRadicionAngle.sunset); // Never used for calculations
+                const rSo = calculateRSo(constants, extraterrestrialRadiation); 
+                const radiations = calculateRadiations(constants, solarRadiation, rSo, taValues.max, taValues.min, pReal);
+                const soilHeatFlux = calculateSoilHeatFlux(constants, taValues.avg, prevTaAvg, amountOfDays);
+                const evapotranspiration = calculateEvapotranspiration(saturationSlope, radiations.net, soilHeatFlux, windVelocity, taValues.avg, steamPressureDeficit, constants);
+
+                csvResults.push(stringifyIteration(taValues, hrValues, vvValues, rsValues, prValues, windVelocity, saturationSlope, satSteam, pReal, steamPressureDeficit, solarRadiation, julianDay, relativeDistance, solarDeclination, hourlyRadicionAngle, extraterrestrialRadiation, maxDuration, rSo, radiations, soilHeatFlux, evapotranspiration, year, month, day, amountOfDays));
+
+                prevTaAvg = taValues.avg;
+            }
+        }
+    }
+    return true;
+}
+ 
+export default function UI() {
     const [dummySv, setDummySv]                = useState("");
     const [heightSv, setHeightSv]               = useState(2129);
     const [albedoSv, setAlbedoSv]               = useState(0.23);
@@ -310,12 +496,12 @@ export default function ui() {
     const [latDegreesSv, setLatDegreesSv]          = useState(9);
     const [latMinSv, setLatMinSv]              = useState(55);
     const [latSecondsSv, setLatSecondsSv]          = useState(26);
-    const [latDecimalsSv, setLatDecimalsSv]         = useState(calculateDecimalDegrees(latDegreesSv, latMinSvg, latSecondsSv));
+    const [latDecimalsSv, setLatDecimalsSv]         = useState(calculateDecimalDegrees(latDegreesSv, latMinSv, latSecondsSv));
     const [latRadsSv, setLatRadsSv]             = useState(deg2Rad(latDecimalsSv));
     const [longDegreesSv, setLongDegreesSv]         = useState(83);
     const [longMinSv, setLongMinSv]             = useState(53);
     const [longSecondsSv, setLongSecondsSv]         = useState(48);
-    const [longDecimalsSv, setLongDecimalsSv]        = useState(calculateDecimalDegrees(longDegreesSv, longMinSvg, longSecondsSv));
+    const [longDecimalsSv, setLongDecimalsSv]        = useState(calculateDecimalDegrees(longDegreesSv, longMinSv, longSecondsSv));
     const [longRadsSv, setLongRadsSv]            = useState(deg2Rad(longDecimalsSv));
     const [centerLongDecimalsSv, setCenterLongDecimalsSv] = useState(90);
     const [centerLongRadsSv, setCenterLongRadsSv]     = useState(deg2Rad(centerLongDecimalsSv));
@@ -326,79 +512,76 @@ export default function ui() {
     const [endDateMonthSv, setEndDateMonthSv]       = useState(12);
     const [endDateDaySv, setEndDateDaySv]         = useState(3);
 
-    const [spreadsheet_data, setSpreadsheetData] = useState<SoilData>({'date': [], 'H': [], 'TA': [], 'HR': [], 'VV': [], 'RS': [], 'PR': []});
+    const [spreadsheetData, setSpreadsheetData] = useState<SoilData>({'date': [], 'H': [], 'TA': [], 'HR': [], 'VV': [], 'RS': [], 'PR': []});
+    const [file, setFile] = useState(null);
 
+    const fileTypes = ["XLSX"];
 
+      const handleChange = (file:any) => {
+        console.log(file);
+        setFile(file);
+      };
 
-    def gen_main_frame(self) -> tuple[customtkinter.CTkFrame, customtkinter.CTkFrame, setCustomtkinter]:
-        main_frame = customtkinter.CTkFrame(self.TKroot)
-        #customtkinter.CTkLabel(main_frame, text='Main Page').grid(row=0, column=0)
-        customtkinter.CTkButton(main_frame, text='Cambiar parametros', command=self.raise_input_menu).grid(row=1, column=1)
-        #main_frame.rowconfigure(0, weight=1)
-        #main_frame.rowconfigure(1, weight=1)
-        #main_frame.columnconfigure(0, weight=1)
-        customtkinter.CTkButton(main_frame, text='Seleccionar datos', command=self.get_test_data).grid(row=2, column=1, columnspan=1)
-        customtkinter.CTkButton(main_frame, text='Calcular', command=self.run_scenario_example).grid(row=3, column=1, columnspan=1)
-        result_frame = customtkinter.CTkScrollableFrame(main_frame, width=800, height=500, orientation='horizontal')
-        result_frame.grid(row=4, column=0, columnspan=3)
-        return main_frame, result_frame
-
-    def run_scenario_example(self) -> None:
-        constants = {
-            'measure_height_c': float(self.meassure_height_sv.get()),
-            'latitude_rad_c': float(self.lat_rads_sv.get()),
-            'max_point_c': int(self.highest_point_sv.get()),
-            'centre_logitude_deg_c': float(self.center_long_decimals_sv.get()),
-            'longitude_deg_c': float(self.long_decimals_sv.get()),
-            'solar_c': float(self.solar_sv.get()),
-            'height_c': int(self.height_sv.get()),
-            'albedo_c': float(self.albedo_sv.get()),
-            'steffan_c': (4.903*10**(-9))/24,
-            'caloric_capacity_c': float(self.caloric_capacity_sv.get()),
-            'soil_depth_c': float(self.soil_depth_sv.get()),
-            'psicrometric_c': float(self.psicrometric_sv.get())
+    function load_data(wb: XLSX.WorkBook): void {
+        let spreadsheet_data: SoilData = { date: [], H: [], TA: [], HR: [], VV: [], RS: [], PR: [] };
+        let ws = wb.Sheets[wb.SheetNames[0]];
+        let data: TestData = XLSX.utils.sheet_to_json(ws);
+        if (data) {
+            data.forEach((row) => {
+                spreadsheet_data.date.push(row.date);
+                spreadsheet_data.H.push(row.H);
+                spreadsheet_data.TA.push(parseFloat(row.TA));
+                spreadsheet_data.HR.push(row.HR as number);
+                spreadsheet_data.VV.push(parseFloat(row.VV as string));
+                spreadsheet_data.RS.push(row.RS as number);
+                spreadsheet_data.PR.push(parseFloat(row.PR as string));
+            });
         }
+        setSpreadsheetData(spreadsheet_data);
+    }
 
-        start_date: dict[str, str] = {
-            'month': self.start_date_month_sv.get(),
-            'day': self.start_date_day_sv.get(),
-            'year': self.start_date_year_sv.get()
-        }
+    function runScenarioExample(): void {
+        const constants: SolarRadiationConstants = {
+            measure_height_c: meassureHeightSv,
+            latitude_rad_c: latRadsSv,
+            max_point_c: highestPointSv,
+            centre_logitude_deg_c: centerLongDecimalsSv,
+            longitude_deg_c: longDecimalsSv,
+            solar_c: solarSv,
+            height_c: heightSv,
+            albedo_c: albedoSv,
+            steffan_c: (4.903 * Math.pow(10, -9)) / 24,
+            caloric_capacity_c: caloricCapacitySv,
+            soil_depth_c: soilDepthSv,
+            psicrometric_c: psicrometricSv
+        };
 
-        end_date: dict[str, str] = {
-            'month': self.end_date_month_sv.get(),
-            'day': self.end_date_day_sv.get(),
-            'year': self.end_date_year_sv.get()
-        }
+        const start_date: Record<string, string> = {
+            month: String(startDateMonthSv),
+            day: String(startDateDaySv),
+            year: String(startDateYearSv)
+        };
 
-        data = self.spreadsheet_data
+        const end_date: Record<string, string> = {
+            month: String(endDateMonthSv),
+            day: String(endDateDaySv),
+            year: String(endDateYearSv)
+        };
+        const result = runScenario(start_date, end_date, spreadsheetData, constants);
+    }
 
-        result = run_scenario(start_date, end_date, data, constants)
-        if result:
-            self.get_data_from_cache()
-        else:
-            self.open_popup()
-
-    def new_input_row(self, frame: customtkinter.CTkFrame, row: int, variable: str, units: str,
-                      text_var: customtkinter.StringVar, callback: Callable[[], Any] | None = None,
-                      disabled: bool = False) -> None:
-        ''' Returns the handle to data entry that was created for the input row '''
-        customtkinter.CTkLabel(frame, text=variable, padx=10, pady=10).grid(row=row, column=0)
-        if callback:
-            entry = customtkinter.CTkEntry(frame, textvariable=text_var, validate="key", validatecommand=callback, width=50)
-        else:
-            entry = customtkinter.CTkEntry(frame, textvariable=text_var, width=50)
-        if disabled:
-            entry.configure(state="disabled")
-        entry.grid(row=row, column=1, columnspan=1)
-        customtkinter.CTkLabel(frame, text=units, padx=10, pady=10).grid(row=row, column=2)
+    return(
+        <>
+            <FileUploader handleChange={handleChange} name="file" types={fileTypes} />
+            <Button onClick={() => file_to_wb(file, load_data)}>Process File</Button>
+            <Button onClick={() => console.log(spreadsheetData)}>Print</Button>
 
     def new_location_input_row(self, frame: customtkinter.CTkFrame, row: int, variable: str,
                                first_sv: StringVar, second_sv: StringVar, third_sv: StringVar, 
                                fourth_sv: StringVar, fifth_sv: StringVar, 
                                callback: Callable[[], Any] | None, first_status: bool, 
                                second_status: bool, third_status: bool, fourth_status: bool, 
-                               fifth_status: bool) -> None:
+                               fifth_status: bool)  None:
         ''' Returns the handle to 5 data entries that were created for the input row '''
         customtkinter.CTkLabel(frame, text=variable, padx=5, pady=10).grid(row=row, column=0)
         if callback:
@@ -424,29 +607,7 @@ export default function ui() {
         if fourth_status: entry4.configure(state="disabled")
         if fifth_status: entry5.configure(state="disabled")
 
-    def raise_result_menu(self) -> None:
-        self.main_frame.pack()
-        self.input_frame.pack_forget()
-
-    def raise_input_menu(self) -> None:
-        self.main_frame.pack_forget()
-        self.input_frame.pack()
-
-    def get_test_data(self) -> None:
-        ''' Obtains data from file selected by user in the openfiledialog '''
-        file = customtkinter.filedialog.askopenfilename(title='Abrir archivo con datos', 
-            filetypes=[('Excel', '*.xlsx'), ('Excel macros', '*.xlsm'), ('CSV', '*.csv')])
-        if not file:
-            print('Empty file handle')
-            return
-        self.spreadsheet_data = load_data(file)
-
-    def check_saved_data(self) -> None:
-        print(self.spreadsheet_data.keys())
-        for index, item in self.spreadsheet_data.items():
-            print(index, item)
-
-    def height_callback(self) -> bool:
+    def height_callback(self)  bool:
         height = self.height_sv.get()
         if height != '' and height.isdigit():
             calculated_value = 101.3*(((293-0.0065*int(height))/293)**5.26)
@@ -454,7 +615,7 @@ export default function ui() {
             self.psicrometric_sv.set("%.2f" % (0.665*10**(-3)*calculated_value))
         return True
 
-    def location_lat_callback(self) -> bool:
+    def location_lat_callback(self)  bool:
         lat_degrees = self.lat_degrees_sv.get()
         lat_minutes = self.lat_min_sv.get()
         lat_seconds = self.lat_seconds_sv.get()
@@ -464,7 +625,7 @@ export default function ui() {
             self.lat_rads_sv.set("%.2f" % (deg2Rad(decimal_degrees)))
         return True
 
-    def location_long_callback(self) -> bool:
+    def location_long_callback(self)  bool:
         long_degrees = self.long_degrees_sv.get()
         long_minutes = self.long_min_sv.get()
         long_seconds = self.long_seconds_sv.get()
@@ -474,43 +635,11 @@ export default function ui() {
             self.long_rads_sv.set("%.2f" % (deg2Rad(decimal_degrees)))
         return True
 
-    def center_long_callback(self) -> bool:
+    def center_long_callback(self)  bool:
         center_long_decimals: str = self.center_long_decimals_sv.get()
         if center_long_decimals != '' and center_long_decimals.isdigit():
             self.center_long_rads_sv.set("%.2f" % (deg2Rad(float(center_long_decimals))))
         return True
-
-    def get_data_from_cache(self) -> None:
-        cache_path: str | None = get_cache_file_path()
-        if not cache_path:
-            print('Can\'t reach cache file, it may not exist')
-            return
-        with open(cache_path, newline='\n', encoding='utf-8') as csvfile:
-            spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
-            for row_index, row in enumerate(spamreader):
-                row_frame = customtkinter.CTkFrame(self.result_frame)
-                for col_index in range(len(row)):
-                    entry = customtkinter.CTkEntry(row_frame, textvariable=customtkinter.StringVar(value=row[col_index]), width=100)
-                    entry.grid(row=row_index+2, column=col_index)
-                    entry.configure(state="disabled")
-                row_frame.grid(row=row_index+2, column=2)
-    
-    def save_results(self) -> None:
-        file = customtkinter.filedialog.asksaveasfilename(title='Seleccionar archivo', 
-            filetypes=[('CSV', '*.csv')])
-        if not file:
-            print('Empty file handle')
-            return
-        save_result_to_system(file)
-        
-    def open_popup(self) -> None:
-        top = customtkinter.CTkToplevel(self.TKroot)
-        top.geometry("250x150")
-        top.title("Error")
-        customtkinter.CTkLabel(top, text= "No se han seleccionado datos!").place(x=40,y=55)
-
-if __name__ == '__main__':
-    app: Evap = Evap()
-    app.run()
-
+        </>
+    )
 }
