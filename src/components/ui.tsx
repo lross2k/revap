@@ -372,7 +372,7 @@ function runScenario(
         return false;
     }
 
-    console.log(startDate, data.date[0])
+    console.log(startDate, data.date[0], endDate, data.date[data.date.length-1])
     if (
         startDate.year < data.date[0].getFullYear() ||
         (startDate.month < data.date[0].getFullYear()) ||
@@ -462,16 +462,15 @@ interface UIProps {
 }
  
 export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, centerLongDecimalsSv, longDecimalsSv, solarSv, heightSv, albedoSv, caloricCapacitySv, soilDepthSv, startDateMonthSv, startDateDaySv, startDateYearSv, endDateMonthSv, endDateDaySv, endDateYearSv, psicrometricSv}: Readonly<UIProps> ) {
-    const [dummySv, setDummySv]                = useState("");
     const [spreadsheetData, setSpreadsheetData] = useState<SoilData>({'date': [], 'H': [], 'TA': [], 'HR': [], 'VV': [], 'RS': [], 'PR': []});
     const [file, setFile] = useState(null);
 
     const fileTypes = ["XLSX"];
 
-      const handleChange = (file:any) => {
+    const handleChange = (file:any) => {
         console.log(file);
         setFile(file);
-      };
+    };
 
     function load_data(wb: XLSX.WorkBook): void {
         let spreadsheet_data: SoilData = { date: [], H: [], TA: [], HR: [], VV: [], RS: [], PR: [] };
@@ -480,12 +479,14 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
         if (data) {
             data.forEach((row) => {
                 const excelEpoch = new Date(1899, 11, 30);
-                const daysToAdd = row.date - 1; // Subtract 1 day because Excel erroneously considers 1900 as a leap year
+                const daysToAdd = row.date - 0; // Subtract 1 day because Excel erroneously considers 1900 as a leap year // dont subtract!!!
                 const millisecondsPerDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
                 const totalMilliseconds = daysToAdd * millisecondsPerDay; // Calculate the number of milliseconds since Excel's epoch
                 // Calculate the JavaScript Date object by adding the milliseconds to Excel's epoch
-                console.log(row.date, new Date(excelEpoch.getTime() + totalMilliseconds))
-                spreadsheet_data.date.push(new Date(excelEpoch.getTime() + totalMilliseconds));
+                //console.log(row.date, new Date(excelEpoch.getTime() + totalMilliseconds))
+                const newDate = new Date(excelEpoch.getTime() + totalMilliseconds);
+                if (!newDate) console.log('oh boi');
+                spreadsheet_data.date.push(newDate);
                 spreadsheet_data.H.push(row.H);
                 spreadsheet_data.TA.push(parseFloat(row.TA));
                 spreadsheet_data.HR.push(row.HR as number);
@@ -494,6 +495,12 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
                 spreadsheet_data.PR.push(parseFloat(row.PR as string));
             });
         }
+        console.log(data[0].date, spreadsheet_data.date[0].toUTCString())
+        console.log(data[0].date, spreadsheet_data.date[0].toString())
+        console.log(spreadsheet_data.date[0].getDay(), spreadsheet_data.date[0].getMonth(), spreadsheet_data.date[0].getFullYear())
+        console.log(data[data.length - 1].date, spreadsheet_data.date[spreadsheet_data.date.length - 1].toUTCString())
+        console.log(data[data.length - 1].date, spreadsheet_data.date[spreadsheet_data.date.length - 1].toString())
+        console.log(spreadsheet_data.date[spreadsheet_data.date.length - 1].getDay(), spreadsheet_data.date[spreadsheet_data.date.length - 1].getMonth(), spreadsheet_data.date[spreadsheet_data.date.length - 1].getFullYear())
         setSpreadsheetData(spreadsheet_data);
     }
 
