@@ -87,19 +87,6 @@ function deg2Rad(degrees: number): number {
     return degrees * Math.PI / 180.0;
 }
 
-
-// DONE WITH CHATGPT
-interface SoilData {
-    date: Date[];
-    H: Date[];
-    TA: number[];
-    HR: number[];
-    VV: number[];
-    RS: number[];
-    PR: number[];
-}
-// ** DONE WITH CHATGPT
-
 // DONE WITH CHATGPT
 type IndexDate = { [year: number]: { [month: number]: { [day: number]: number[] } } };
 
@@ -157,7 +144,7 @@ function valuesForVariable(variable_data: number[]): { [key: string]: number } {
 
 interface SoilData {
     date: Date[];
-    H: Date[];
+    H: number[];
     TA: number[];
     HR: number[];
     VV: number[];
@@ -177,18 +164,16 @@ function file_to_wb(file: any, callback: any) {
 }
 
 interface RowData {
-    H: Date;
+    H: number;
     HR: number;
     PR: string;
     RS: number;
     TA: string;
     VV: string;
-    date: Date;
+    date: number;
 };
 
 type TestData = RowData[];
-
-
 
 function calculateDecimalDegrees(degrees: number, minutes: number, seconds: number): number {
     return degrees + (minutes / 60) + (seconds / 3600);
@@ -414,6 +399,7 @@ function runScenario(
         return false;
     }
 
+    console.log(startDate, data.date[0])
     if (
         startDate.year < data.date[0].getFullYear() ||
         (startDate.month < data.date[0].getFullYear()) ||
@@ -528,7 +514,13 @@ export default function UI() {
         let data: TestData = XLSX.utils.sheet_to_json(ws);
         if (data) {
             data.forEach((row) => {
-                spreadsheet_data.date.push(row.date);
+                const excelEpoch = new Date(1899, 11, 30);
+                const daysToAdd = row.date - 1; // Subtract 1 day because Excel erroneously considers 1900 as a leap year
+                const millisecondsPerDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+                const totalMilliseconds = daysToAdd * millisecondsPerDay; // Calculate the number of milliseconds since Excel's epoch
+                // Calculate the JavaScript Date object by adding the milliseconds to Excel's epoch
+                console.log(row.date, new Date(excelEpoch.getTime() + totalMilliseconds))
+                spreadsheet_data.date.push(new Date(excelEpoch.getTime() + totalMilliseconds));
                 spreadsheet_data.H.push(row.H);
                 spreadsheet_data.TA.push(parseFloat(row.TA));
                 spreadsheet_data.HR.push(row.HR as number);
@@ -575,6 +567,7 @@ export default function UI() {
             <FileUploader handleChange={handleChange} name="file" types={fileTypes} />
             <Button onClick={() => file_to_wb(file, load_data)}>Process File</Button>
             <Button onClick={() => console.log(spreadsheetData)}>Print</Button>
+            <Button onClick={() => runScenarioExample()}>Calculate</Button>
 
     def new_location_input_row(self, frame: customtkinter.CTkFrame, row: int, variable: str,
                                first_sv: StringVar, second_sv: StringVar, third_sv: StringVar, 
