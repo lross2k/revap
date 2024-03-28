@@ -83,10 +83,6 @@ function stringify_iteration(ta_values: Record<string, number>, hr_values: Recor
     return final_string;
 }
 
-function deg2Rad(degrees: number): number {
-    return degrees * Math.PI / 180.0;
-}
-
 // DONE WITH CHATGPT
 type IndexDate = { [year: number]: { [month: number]: { [day: number]: number[] } } };
 
@@ -174,10 +170,6 @@ interface RowData {
 };
 
 type TestData = RowData[];
-
-function calculateDecimalDegrees(degrees: number, minutes: number, seconds: number): number {
-    return degrees + (minutes / 60) + (seconds / 3600);
-}
 
 function calculateWindVelocity(vv_avg: number, constants: SolarRadiationConstants): number {
     const velocity = vv_avg * (4.87 / (Math.log((67.8 * constants.measure_height_c) - 5.42)));
@@ -467,37 +459,29 @@ function runScenario(
     }
     return true;
 }
- 
-export default function UI() {
-    const [dummySv, setDummySv]                = useState("");
-    const [heightSv, setHeightSv]               = useState(2129);
-    const [albedoSv, setAlbedoSv]               = useState(0.23);
-    const [solarSv, setSolarSv]                = useState(0.082);
-    const [meassureHeightSv, setMeassureHeightSv]      = useState(6.5);
-    const [pressureSv, setPressureSv]             = useState(78.4);
-    const [psicrometricSv, setPsicrometricSv]         = useState(0.05);
-    const [soilDepthSv, setSoilDepthSv]           = useState(0.1);
-    const [caloricCapacitySv, setCaloricCapacitySv]     = useState(2.1);
-    const [highestPointSv, setHighestPointSv]        = useState(12);
-    const [latDegreesSv, setLatDegreesSv]          = useState(9);
-    const [latMinSv, setLatMinSv]              = useState(55);
-    const [latSecondsSv, setLatSecondsSv]          = useState(26);
-    const [latDecimalsSv, setLatDecimalsSv]         = useState(calculateDecimalDegrees(latDegreesSv, latMinSv, latSecondsSv));
-    const [latRadsSv, setLatRadsSv]             = useState(deg2Rad(latDecimalsSv));
-    const [longDegreesSv, setLongDegreesSv]         = useState(83);
-    const [longMinSv, setLongMinSv]             = useState(53);
-    const [longSecondsSv, setLongSecondsSv]         = useState(48);
-    const [longDecimalsSv, setLongDecimalsSv]        = useState(calculateDecimalDegrees(longDegreesSv, longMinSv, longSecondsSv));
-    const [longRadsSv, setLongRadsSv]            = useState(deg2Rad(longDecimalsSv));
-    const [centerLongDecimalsSv, setCenterLongDecimalsSv] = useState(90);
-    const [centerLongRadsSv, setCenterLongRadsSv]     = useState(deg2Rad(centerLongDecimalsSv));
-    const [startDateYearSv, setStartDateYearSv]      = useState(2019);
-    const [startDateMonthSv, setStartDateMonthSv]     = useState(12);
-    const [startDateDaySv, setStartDateDaySv]       = useState(1);
-    const [endDateYearSv, setEndDateYearSv]        = useState(2019);
-    const [endDateMonthSv, setEndDateMonthSv]       = useState(12);
-    const [endDateDaySv, setEndDateDaySv]         = useState(3);
 
+interface UIProps {
+    meassureHeightSv: number;
+    latRadsSv: number;
+    highestPointSv: number;
+    centerLongDecimalsSv: number;
+    longDecimalsSv: number;
+    solarSv: number;
+    heightSv: number;
+    albedoSv: number;
+    caloricCapacitySv: number;
+    soilDepthSv: number;
+    startDateMonthSv: number;
+    startDateDaySv: number;
+    startDateYearSv: number;
+    endDateMonthSv: number;
+    endDateDaySv: number;
+    endDateYearSv: number;
+    psicrometricSv: number;
+}
+ 
+export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, centerLongDecimalsSv, longDecimalsSv, solarSv, heightSv, albedoSv, caloricCapacitySv, soilDepthSv, startDateMonthSv, startDateDaySv, startDateYearSv, endDateMonthSv, endDateDaySv, endDateYearSv, psicrometricSv}: Readonly<UIProps> ) {
+    const [dummySv, setDummySv]                = useState("");
     const [spreadsheetData, setSpreadsheetData] = useState<SoilData>({'date': [], 'H': [], 'TA': [], 'HR': [], 'VV': [], 'RS': [], 'PR': []});
     const [file, setFile] = useState(null);
 
