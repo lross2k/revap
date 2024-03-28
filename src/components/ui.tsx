@@ -2,21 +2,6 @@ import { useState } from 'react'
 import { FileUploader } from "react-drag-drop-files";
 import Button from '@mui/material/Button';
 import XLSX from 'xlsx'
-//from evapotranspiration import load_data, SoilData, calculateDecimalDegrees
-//from common import save_result_to_system, get_cache_file_path
-//from calculations import run_scenario, deg2Rad
-//from customtkinter import StringVar
-//from typing import Callable, Any
-
-//from math import fsum, log, exp, cos, pi, sin, acos, tan, sqrt
-//from typing import TypedDict, Sequence, Any, cast
-//from collections import defaultdict
-//from datetime import datetime, time
-//import openpyxl
-
-//from common import save_temp_to_system
-//from evapotranspiration import *
-//from math import pi
 
 function append_with_separator(source: string, destination: string): string {
     let transformed: string = destination;
@@ -83,7 +68,6 @@ function stringify_iteration(ta_values: Record<string, number>, hr_values: Recor
     return final_string;
 }
 
-// DONE WITH CHATGPT
 type IndexDate = { [year: number]: { [month: number]: { [day: number]: number[] } } };
 
 function indexByDate(data: Date[]): IndexDate {
@@ -109,9 +93,7 @@ function indexByDate(data: Date[]): IndexDate {
 
     return indexDate;
 }
-// ** DONE WITH CHATGPT
 
-// DONE WITH CHATGPT
 function getDataAt(data: SoilData, indexes: number[]): SoilData {
     const new_data: SoilData = { date: [], H: [], TA: [], HR: [], VV: [], RS: [], PR: [] };
 
@@ -127,7 +109,6 @@ function getDataAt(data: SoilData, indexes: number[]): SoilData {
 
     return new_data;
 }
-// ** DONE WITH CHATGPT
 
 function valuesForVariable(variable_data: number[]): { [key: string]: number } {
     const values: { [key: string]: number } = {
@@ -553,70 +534,7 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
             <Button onClick={() => console.log(spreadsheetData)}>Print</Button>
             <Button onClick={() => runScenarioExample()}>Calculate</Button>
 
-    def new_location_input_row(self, frame: customtkinter.CTkFrame, row: int, variable: str,
-                               first_sv: StringVar, second_sv: StringVar, third_sv: StringVar, 
-                               fourth_sv: StringVar, fifth_sv: StringVar, 
-                               callback: Callable[[], Any] | None, first_status: bool, 
-                               second_status: bool, third_status: bool, fourth_status: bool, 
-                               fifth_status: bool)  None:
-        ''' Returns the handle to 5 data entries that were created for the input row '''
-        customtkinter.CTkLabel(frame, text=variable, padx=5, pady=10).grid(row=row, column=0)
-        if callback:
-            entry1 = customtkinter.CTkEntry(frame, textvariable=first_sv, validate="key", validatecommand=callback, width=100)
-            entry2 = customtkinter.CTkEntry(frame, textvariable=second_sv, validate="key", validatecommand=callback, width=100)
-            entry3 = customtkinter.CTkEntry(frame, textvariable=third_sv, validate="key", validatecommand=callback, width=100)
-            entry4 = customtkinter.CTkEntry(frame, textvariable=fourth_sv, validate="key", validatecommand=callback, width=100)
-            entry5 = customtkinter.CTkEntry(frame, textvariable=fifth_sv, validate="key", validatecommand=callback, width=100)
-        else:
-            entry1 = customtkinter.CTkEntry(frame, textvariable=first_sv, width=100)
-            entry2 = customtkinter.CTkEntry(frame, textvariable=second_sv, width=100)
-            entry3 = customtkinter.CTkEntry(frame, textvariable=third_sv, width=100)
-            entry4 = customtkinter.CTkEntry(frame, textvariable=fourth_sv, width=100)
-            entry5 = customtkinter.CTkEntry(frame, textvariable=fifth_sv, width=100)
-        entry1.grid(row=row, column=1)
-        entry2.grid(row=row, column=2)
-        entry3.grid(row=row, column=3)
-        entry4.grid(row=row, column=4)
-        entry5.grid(row=row, column=5)
-        if first_status: entry1.configure(state="disabled")
-        if second_status: entry2.configure(state="disabled")
-        if third_status: entry3.configure(state="disabled")
-        if fourth_status: entry4.configure(state="disabled")
-        if fifth_status: entry5.configure(state="disabled")
 
-    def height_callback(self)  bool:
-        height = self.height_sv.get()
-        if height != '' and height.isdigit():
-            calculated_value = 101.3*(((293-0.0065*int(height))/293)**5.26)
-            self.pressure_sv.set("%.2f" % (calculated_value))
-            self.psicrometric_sv.set("%.2f" % (0.665*10**(-3)*calculated_value))
-        return True
-
-    def location_lat_callback(self)  bool:
-        lat_degrees = self.lat_degrees_sv.get()
-        lat_minutes = self.lat_min_sv.get()
-        lat_seconds = self.lat_seconds_sv.get()
-        if lat_degrees != '' and lat_degrees.isdigit() and lat_minutes != '' and lat_minutes.isdigit() and lat_seconds != '' and lat_seconds.isdigit():
-            decimal_degrees = calculateDecimalDegrees(int(lat_degrees), int(lat_minutes), int(lat_seconds))
-            self.lat_decimals_sv.set("%.2f" % (decimal_degrees))
-            self.lat_rads_sv.set("%.2f" % (deg2Rad(decimal_degrees)))
-        return True
-
-    def location_long_callback(self)  bool:
-        long_degrees = self.long_degrees_sv.get()
-        long_minutes = self.long_min_sv.get()
-        long_seconds = self.long_seconds_sv.get()
-        if long_degrees != '' and long_degrees.isdigit() and long_minutes != '' and long_minutes.isdigit() and long_seconds != '' and long_seconds.isdigit():
-            decimal_degrees = calculateDecimalDegrees(int(long_degrees), int(long_minutes), int(long_seconds))
-            self.long_decimals_sv.set("%.2f" % (decimal_degrees))
-            self.long_rads_sv.set("%.2f" % (deg2Rad(decimal_degrees)))
-        return True
-
-    def center_long_callback(self)  bool:
-        center_long_decimals: str = self.center_long_decimals_sv.get()
-        if center_long_decimals != '' and center_long_decimals.isdigit():
-            self.center_long_rads_sv.set("%.2f" % (deg2Rad(float(center_long_decimals))))
-        return True
         </>
     )
 }

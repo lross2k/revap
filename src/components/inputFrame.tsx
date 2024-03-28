@@ -1,7 +1,10 @@
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import FormControl from '@mui/material/FormControl';
-import { InputLabel } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { Dayjs } from 'dayjs';
 
 interface CellProps {
     label?: string;
@@ -100,6 +103,28 @@ interface InputFrameProps {
     setCenterLongDecimalsSv: React.Dispatch<React.SetStateAction<number>>;
     centerLongRadsSv: number;
     setCenterLongRadsSv: React.Dispatch<React.SetStateAction<number>>;
+    heightSv: number;
+    albedoSv: number;
+    solarSv: number;
+    meassureHeightSv: number;
+    highestPointSv: number;
+    caloricCapacitySv: number;
+    soilDepthSv: number;
+    pressureSv: number;
+    psicrometricSv: number;
+    setHeightSv: React.Dispatch<React.SetStateAction<number>>;
+    setAlbedoSv: React.Dispatch<React.SetStateAction<number>>;
+    setSolarSv: React.Dispatch<React.SetStateAction<number>>;
+    setMeassureHeightSv: React.Dispatch<React.SetStateAction<number>>;
+    setHighestPointSv: React.Dispatch<React.SetStateAction<number>>;
+    setCaloricCapacitySv: React.Dispatch<React.SetStateAction<number>>;
+    setSoilDepthSv: React.Dispatch<React.SetStateAction<number>>;
+    setPressureSv: React.Dispatch<React.SetStateAction<number>>;
+    setPsicrometricSv: React.Dispatch<React.SetStateAction<number>>;
+    startDate: Dayjs | null;
+    setStartDate: React.Dispatch<React.SetStateAction<Dayjs | null>>;
+    endDate: Dayjs | null;
+    setEndDate: React.Dispatch<React.SetStateAction<Dayjs | null>>;
 }
 
 export default function InputFrame( {
@@ -114,29 +139,48 @@ export default function InputFrame( {
     longRadsSv, setLongRadsSv, 
     longDecimalsSv, setLongDecimalsSv,
     centerLongDecimalsSv, setCenterLongDecimalsSv,
-    centerLongRadsSv, setCenterLongRadsSv
+    centerLongRadsSv, setCenterLongRadsSv,
+    heightSv, setHeightSv,
+    albedoSv, setAlbedoSv,
+    solarSv, setSolarSv,
+    meassureHeightSv, setMeassureHeightSv,
+    highestPointSv, setHighestPointSv,
+    caloricCapacitySv, setCaloricCapacitySv,
+    soilDepthSv, setSoilDepthSv,
+    pressureSv, setPressureSv,
+    psicrometricSv, setPsicrometricSv,
+    startDate, setStartDate,
+    endDate, setEndDate,
 }: Readonly<InputFrameProps> ) {
 
     return(
         <>
-        {/* height_sv */}
-        <Cell label='Altura' units='msnm' />
-        {/* albedo_sv */}
-        <Cell label='Albedo' units='-' />
-        {/* solar_sv */}
-        <Cell label='Constante Solar' units='MJ/m^2 min' />
-        {/* meassure_height_sv */}
-        <Cell label='Altura de medición' units='m' />
-        {/* highest_point_sv */}
-        <Cell label='t=punto máximo' units='-' />
-        {/* caloric_capacity_sv */}
-        <Cell label='Capacidad calorífica' units='MJ m-3 °C-1' />
-        {/* soil_depth_sv */}
-        <Cell label='Δz=profundida del suelo' units='m' />
-        {/* pressure_sv */}
-        <Cell label='Presión Atmosférica' units='kPa' disabled />
-        {/* psicrometric_sv */}
-        <Cell label='Constante psicrométrica (ϒ)' units='kPa /°C' disabled />
+        <div style={{display: 'flex', flexDirection: 'row'}}>
+            <div>
+                {/* height_sv */}
+                <Cell label='Altura' units='msnm' value={String(heightSv)} />
+                {/* albedo_sv */}
+                <Cell label='Albedo' units='-' value={String(albedoSv)} />
+                {/* solar_sv */}
+                <Cell label='Constante Solar' units='MJ/m^2 min' value={String(solarSv)} />
+            </div>
+            <div>
+                {/* meassure_height_sv */}
+                <Cell label='Altura de medición' units='m' value={String(meassureHeightSv)} />
+                {/* highest_point_sv */}
+                <Cell label='t=punto máximo' units='-' value={String(highestPointSv)} />
+                {/* caloric_capacity_sv */}
+                <Cell label='Capacidad calorífica' units='MJ m-3 °C-1' value={String(caloricCapacitySv)} />
+                {/* soil_depth_sv */}
+                <Cell label='Δz=profundida del suelo' units='m' value={String(soilDepthSv)} />
+            </div>
+        </div>
+        <div style={{display: 'flex', flexDirection: 'row'}}>
+            {/* pressure_sv */}
+            <Cell label='Presión Atmosférica' units='kPa' disabled value={String(pressureSv)} />
+            {/* psicrometric_sv */}
+            <Cell label='Constante psicrométrica (ϒ)' units='kPa /°C' disabled value={String(psicrometricSv)} />
+        </div>
 
         <HeaderRow />
         <LocationInputRow 
@@ -180,27 +224,23 @@ export default function InputFrame( {
             disableCol3
         />
 
-    {/* '', self.dummy_sv, self.dummy_sv, self.dummy_sv, self.center_long_decimals_sv, self.center_long_rads_sv, self.center_long_callback, True, True, True, False, True) */}
+        <div style={{display: 'flex', flexDirection: 'row'}}>
+            Inicio
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                value={startDate}
+                onChange={(newValue) => {if (newValue !== null) setStartDate(newValue)}}
+              />
+            </LocalizationProvider>
 
-    date_data = customtkinter.CTkFrame(input_frame)
-    customtkinter.CTkLabel(date_data, text="Día", padx=10, pady=10).grid(row=0, column=1)
-    customtkinter.CTkLabel(date_data, text="Mes", padx=10, pady=10).grid(row=0, column=2)
-    customtkinter.CTkLabel(date_data, text="Año", padx=10, pady=10).grid(row=0, column=3)
-    customtkinter.CTkLabel(date_data, text="Inicio", padx=10, pady=10).grid(row=1, column=0)
-    customtkinter.CTkEntry(date_data, textvariable=self.start_date_day_sv, width=50).grid(row=1, column=1, columnspan=1)
-    customtkinter.CTkEntry(date_data, textvariable=self.start_date_month_sv, width=50).grid(row=1, column=2, columnspan=1)
-    customtkinter.CTkEntry(date_data, textvariable=self.start_date_year_sv, width=50).grid(row=1, column=3, columnspan=1)
-    customtkinter.CTkLabel(date_data, text="Fin", padx=10, pady=10).grid(row=2, column=0)
-    customtkinter.CTkEntry(date_data, textvariable=self.end_date_day_sv, width=50).grid(row=2, column=1, columnspan=1)
-    customtkinter.CTkEntry(date_data, textvariable=self.end_date_month_sv, width=50).grid(row=2, column=2, columnspan=1)
-    customtkinter.CTkEntry(date_data, textvariable=self.end_date_year_sv, width=50).grid(row=2, column=3, columnspan=1)
-    date_data.grid(row=3, column=1, sticky='nswe')
-
-    customtkinter.CTkButton(input_frame, text='Ir a calculos', command=self.raise_result_menu).grid(row=6, column=0, sticky='nswe')
-    customtkinter.CTkButton(input_frame, text='Guardar resultados', command=self.save_results).grid(row=6, column=1, sticky='nswe')
-
-
+            Fin
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                value={endDate}
+                onChange={(newValue) => {if (newValue !== null) setEndDate(newValue)}}
+              />
+            </LocalizationProvider>
+        </div>
         </>
     )
-
 }

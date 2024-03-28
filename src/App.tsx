@@ -2,6 +2,7 @@ import './App.css';
 import InputFrame from './components/inputFrame';
 import UI from './components/ui';
 import { useState } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
 
 function calculateDecimalDegrees(degrees: number, minutes: number, seconds: number): number {
     return degrees + (minutes / 60) + (seconds / 3600);
@@ -10,6 +11,40 @@ function calculateDecimalDegrees(degrees: number, minutes: number, seconds: numb
 function deg2Rad(degrees: number): number {
     return degrees * Math.PI / 180.0;
 }
+
+//    def height_callback(self)  bool:
+//        height = self.height_sv.get()
+//        if height != '' and height.isdigit():
+//            calculated_value = 101.3*(((293-0.0065*int(height))/293)**5.26)
+//            self.pressure_sv.set("%.2f" % (calculated_value))
+//            self.psicrometric_sv.set("%.2f" % (0.665*10**(-3)*calculated_value))
+//        return True
+//
+//    def location_lat_callback(self)  bool:
+//        lat_degrees = self.lat_degrees_sv.get()
+//        lat_minutes = self.lat_min_sv.get()
+//        lat_seconds = self.lat_seconds_sv.get()
+//        if lat_degrees != '' and lat_degrees.isdigit() and lat_minutes != '' and lat_minutes.isdigit() and lat_seconds != '' and lat_seconds.isdigit():
+//            decimal_degrees = calculateDecimalDegrees(int(lat_degrees), int(lat_minutes), int(lat_seconds))
+//            self.lat_decimals_sv.set("%.2f" % (decimal_degrees))
+//            self.lat_rads_sv.set("%.2f" % (deg2Rad(decimal_degrees)))
+//        return True
+//
+//    def location_long_callback(self)  bool:
+//        long_degrees = self.long_degrees_sv.get()
+//        long_minutes = self.long_min_sv.get()
+//        long_seconds = self.long_seconds_sv.get()
+//        if long_degrees != '' and long_degrees.isdigit() and long_minutes != '' and long_minutes.isdigit() and long_seconds != '' and long_seconds.isdigit():
+//            decimal_degrees = calculateDecimalDegrees(int(long_degrees), int(long_minutes), int(long_seconds))
+//            self.long_decimals_sv.set("%.2f" % (decimal_degrees))
+//            self.long_rads_sv.set("%.2f" % (deg2Rad(decimal_degrees)))
+//        return True
+//
+//    def center_long_callback(self)  bool:
+//        center_long_decimals: str = self.center_long_decimals_sv.get()
+//        if center_long_decimals != '' and center_long_decimals.isdigit():
+//            self.center_long_rads_sv.set("%.2f" % (deg2Rad(float(center_long_decimals))))
+//        return True
 
 function App() {
     const [heightSv, setHeightSv]               = useState(2129);
@@ -39,6 +74,8 @@ function App() {
     const [endDateYearSv, setEndDateYearSv]        = useState(2019);
     const [endDateMonthSv, setEndDateMonthSv]       = useState(12);
     const [endDateDaySv, setEndDateDaySv]         = useState(3);
+    const [startDate, setStartDate] = useState<Dayjs | null>(dayjs('2022-04-17'));
+    const [endDate, setEndDate] = useState<Dayjs | null>(dayjs('2022-04-17'));
 
   return (
     <div className="App">
@@ -68,6 +105,28 @@ function App() {
             setCenterLongRadsSv={setCenterLongRadsSv} 
             centerLongDecimalsSv={centerLongDecimalsSv} 
             setCenterLongDecimalsSv={setCenterLongDecimalsSv} 
+            heightSv={heightSv}
+            setHeightSv={setHeightSv}
+            albedoSv={albedoSv}
+            setAlbedoSv={setAlbedoSv}
+            solarSv={solarSv}
+            setSolarSv={setSolarSv}
+            meassureHeightSv={meassureHeightSv}
+            setMeassureHeightSv={setMeassureHeightSv}
+            highestPointSv={highestPointSv}
+            setHighestPointSv={setHighestPointSv}
+            caloricCapacitySv={caloricCapacitySv}
+            setCaloricCapacitySv={setCaloricCapacitySv}
+            soilDepthSv={soilDepthSv}
+            setSoilDepthSv={setSoilDepthSv}
+            pressureSv={pressureSv}
+            setPressureSv={setPressureSv}
+            psicrometricSv={psicrometricSv}
+            setPsicrometricSv={setPsicrometricSv}
+            startDate={startDate}
+            endDate={endDate}
+            setStartDate={setStartDate}
+            setEndDate={setEndDate}
           />
           <UI 
             meassureHeightSv={meassureHeightSv} 
