@@ -482,8 +482,6 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
                 const daysToAdd = row.date - 0; // Subtract 1 day because Excel erroneously considers 1900 as a leap year // dont subtract!!!
                 const millisecondsPerDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
                 const totalMilliseconds = daysToAdd * millisecondsPerDay; // Calculate the number of milliseconds since Excel's epoch
-                // Calculate the JavaScript Date object by adding the milliseconds to Excel's epoch
-                //console.log(row.date, new Date(excelEpoch.getTime() + totalMilliseconds))
                 const newDate = new Date(excelEpoch.getTime() + totalMilliseconds);
                 if (!newDate) console.log('oh boi');
                 spreadsheet_data.date.push(newDate);
@@ -495,12 +493,6 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
                 spreadsheet_data.PR.push(parseFloat(row.PR as string));
             });
         }
-        console.log(data[0].date, spreadsheet_data.date[0].toUTCString())
-        console.log(data[0].date, spreadsheet_data.date[0].toString())
-        console.log(spreadsheet_data.date[0].getDay(), spreadsheet_data.date[0].getMonth(), spreadsheet_data.date[0].getFullYear())
-        console.log(data[data.length - 1].date, spreadsheet_data.date[spreadsheet_data.date.length - 1].toUTCString())
-        console.log(data[data.length - 1].date, spreadsheet_data.date[spreadsheet_data.date.length - 1].toString())
-        console.log(spreadsheet_data.date[spreadsheet_data.date.length - 1].getDay(), spreadsheet_data.date[spreadsheet_data.date.length - 1].getMonth(), spreadsheet_data.date[spreadsheet_data.date.length - 1].getFullYear())
         setSpreadsheetData(spreadsheet_data);
     }
 
@@ -519,6 +511,9 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
             soil_depth_c: soilDepthSv,
             psicrometric_c: psicrometricSv
         };
+
+        //console.log(spreadsheet_data.date[0].getUTCDate(), spreadsheet_data.date[0].getUTCMonth()+1, spreadsheet_data.date[0].getUTCFullYear())
+        //console.log(spreadsheet_data.date[spreadsheet_data.date.length - 1].getUTCDate(), spreadsheet_data.date[spreadsheet_data.date.length - 1].getUTCMonth()+1, spreadsheet_data.date[spreadsheet_data.date.length - 1].getUTCFullYear())
 
         const start_date: Record<string, string> = {
             month: String(startDateMonthSv),
@@ -540,8 +535,6 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
             <Button onClick={() => file_to_wb(file, load_data)}>Process File</Button>
             <Button onClick={() => console.log(spreadsheetData)}>Print</Button>
             <Button onClick={() => runScenarioExample()}>Calculate</Button>
-
-
         </>
     )
 }

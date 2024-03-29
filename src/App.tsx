@@ -1,25 +1,17 @@
 import './App.css';
 import InputFrame from './components/inputFrame';
 import UI from './components/ui';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 
 function calculateDecimalDegrees(degrees: number, minutes: number, seconds: number): number {
-    return degrees + (minutes / 60) + (seconds / 3600);
+  return degrees + (minutes / 60) + (seconds / 3600);
 }
 
 function deg2Rad(degrees: number): number {
-    return degrees * Math.PI / 180.0;
+  return degrees * Math.PI / 180.0;
 }
 
-//    def height_callback(self)  bool:
-//        height = self.height_sv.get()
-//        if height != '' and height.isdigit():
-//            calculated_value = 101.3*(((293-0.0065*int(height))/293)**5.26)
-//            self.pressure_sv.set("%.2f" % (calculated_value))
-//            self.psicrometric_sv.set("%.2f" % (0.665*10**(-3)*calculated_value))
-//        return True
-//
 //    def location_lat_callback(self)  bool:
 //        lat_degrees = self.lat_degrees_sv.get()
 //        lat_minutes = self.lat_min_sv.get()
@@ -51,7 +43,7 @@ function App() {
     const [albedoSv, setAlbedoSv]               = useState(0.23);
     const [solarSv, setSolarSv]                = useState(0.082);
     const [meassureHeightSv, setMeassureHeightSv]      = useState(6.5);
-    const [pressureSv, setPressureSv]             = useState(78.4);
+    const [pressureSv, setPressureSv]             = useState(101.3*(((293-0.0065*Math.trunc(heightSv))/293)**5.26));
     const [psicrometricSv, setPsicrometricSv]         = useState(0.05);
     const [soilDepthSv, setSoilDepthSv]           = useState(0.1);
     const [caloricCapacitySv, setCaloricCapacitySv]     = useState(2.1);
@@ -76,6 +68,28 @@ function App() {
     const [endDateDaySv, setEndDateDaySv]         = useState(3);
     const [startDate, setStartDate] = useState<Dayjs | null>(dayjs('2022-04-17'));
     const [endDate, setEndDate] = useState<Dayjs | null>(dayjs('2022-04-17'));
+
+    useEffect(() => {
+      if (startDate) {
+        setStartDateDaySv(startDate.day());
+        setStartDateMonthSv(startDate.month());
+        setStartDateYearSv(startDate.year());
+      }
+    }, [startDate]);
+
+    useEffect(() => {
+      if (endDate) {
+        setEndDateDaySv(endDate.day());
+        setEndDateMonthSv(endDate.month());
+        setEndDateYearSv(endDate.year());
+      }
+    }, [endDate]);
+
+    useEffect(() => {
+      const calculated_value = 101.3*(Math.pow((293-0.0065*Math.trunc(heightSv))/293,5.26));
+      setPressureSv(calculated_value);
+      setPsicrometricSv(0.665*Math.pow(10,-3)*calculated_value);
+    }, [heightSv]);
 
   return (
     <div className="App">
@@ -120,9 +134,7 @@ function App() {
             soilDepthSv={soilDepthSv}
             setSoilDepthSv={setSoilDepthSv}
             pressureSv={pressureSv}
-            setPressureSv={setPressureSv}
             psicrometricSv={psicrometricSv}
-            setPsicrometricSv={setPsicrometricSv}
             startDate={startDate}
             endDate={endDate}
             setStartDate={setStartDate}
