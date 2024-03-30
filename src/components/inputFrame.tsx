@@ -8,11 +8,11 @@ import { Dayjs } from 'dayjs';
 import { Dispatch, SetStateAction } from 'react';
 
 interface CellProps {
-    label?: string;
-    units?: string;
-    disabled?: boolean;
-    value?: string;
-    onChange?: Dispatch<SetStateAction<number>> | undefined;
+    label?:     string;
+    units?:     string;
+    disabled?:  boolean;
+    value?:     string;
+    onChange?:  Dispatch<SetStateAction<number>> | undefined;
 }
 
 function Cell( {label = '', units = '', value = '', disabled = false, onChange}: Readonly<CellProps> ) {
@@ -126,10 +126,10 @@ interface InputFrameProps {
     setHighestPointSv: Dispatch<SetStateAction<number>>;
     setCaloricCapacitySv: Dispatch<SetStateAction<number>>;
     setSoilDepthSv: Dispatch<SetStateAction<number>>;
-    startDate: Dayjs | null;
-    setStartDate: Dispatch<SetStateAction<Dayjs | null>>;
-    endDate: Dayjs | null;
-    setEndDate: Dispatch<SetStateAction<Dayjs | null>>;
+    startDate: Dayjs;
+    setStartDate: Dispatch<SetStateAction<Dayjs>>;
+    endDate: Dayjs;
+    setEndDate: Dispatch<SetStateAction<Dayjs>>;
 }
 
 export default function InputFrame( {

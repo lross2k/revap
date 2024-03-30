@@ -129,11 +129,9 @@ interface SoilData {
     PR: number[];
 }
 
-// usage: file_to_wb(file, function(wb) { /* wb is a workbook object */ });
 function file_to_wb(file: any, callback: any) {
   var reader = new FileReader();
   reader.onload = function(e) {
-    /* e.target.result is an ArrayBuffer */
     if (e.target)
         callback(XLSX.read(e.target.result));
   };
@@ -511,9 +509,6 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
             soil_depth_c: soilDepthSv,
             psicrometric_c: psicrometricSv
         };
-
-        //console.log(spreadsheet_data.date[0].getUTCDate(), spreadsheet_data.date[0].getUTCMonth()+1, spreadsheet_data.date[0].getUTCFullYear())
-        //console.log(spreadsheet_data.date[spreadsheet_data.date.length - 1].getUTCDate(), spreadsheet_data.date[spreadsheet_data.date.length - 1].getUTCMonth()+1, spreadsheet_data.date[spreadsheet_data.date.length - 1].getUTCFullYear())
 
         const start_date: Record<string, string> = {
             month: String(startDateMonthSv),
