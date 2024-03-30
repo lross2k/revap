@@ -3,6 +3,7 @@ import InputFrame from './components/inputFrame';
 import UI from './components/ui';
 import { useState, useEffect } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
+import ResultsTable from './components/resultsTable';
 
 function calculateDecimalDegrees(degrees: number, minutes: number, seconds: number): number {
   return degrees + (minutes / 60) + (seconds / 3600);
@@ -42,6 +43,7 @@ function App() {
   const [endDateYearSv, setEndDateYearSv]                = useState(endDate?.year());
   const [endDateMonthSv, setEndDateMonthSv]              = useState(endDate?.month());
   const [endDateDaySv, setEndDateDaySv]                  = useState(endDate?.day());
+  const [resultsData, setResultsData]                    = useState<Array<string>>([]);
 
   useEffect(() => {
     if (startDate) {
@@ -148,8 +150,11 @@ function App() {
             endDateMonthSv={endDateMonthSv} 
             endDateDaySv={endDateDaySv} 
             endDateYearSv={endDateYearSv}
+            resultsData={resultsData}
+            setResultsData={setResultsData}
           />
       </header>
+      <ResultsTable />
     </div>
   );
 }

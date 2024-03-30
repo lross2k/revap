@@ -2,81 +2,26 @@ import { useState } from 'react'
 import { FileUploader } from "react-drag-drop-files";
 import Button from '@mui/material/Button';
 import XLSX from 'xlsx'
-
-function append_with_separator(source: string, destination: string): string {
-    let transformed: string = destination;
-    transformed = transformed + ";" + source;
-    return transformed;
-}
-
-function stringify_iteration(ta_values: Record<string, number>, hr_values: Record<string, number>,
-    vv_values: Record<string, number>, rs_values: Record<string, number>,
-    pr_values: Record<string, number>, wind_velocity: number,
-    saturation_slope: number, sat_steam: Record<string, number>,
-    p_real: number, steam_pressure_deficit: number,
-    solar_radiation: number, julian_day: number,
-    relative_distance: number, solar_declination: number,
-    hourly_radicion_angle: Record<string, number>,
-    extraterrestrial_radiation: number, max_duration: number,
-    r_so: number, radiations: Record<string, number>,
-    soil_heat_flux: number, evapotranspiration: number,
-    year: number, month: number, day: number, amount_of_days: number): string {
-
-    let final_string: string = `${month}/${day}/${year}`;
-    final_string = append_with_separator(amount_of_days.toString(), final_string);
-    final_string = append_with_separator(ta_values['avg'].toFixed(3), final_string);
-    final_string = append_with_separator(hr_values['avg'].toFixed(3), final_string);
-    final_string = append_with_separator(vv_values['avg'].toFixed(3), final_string);
-    final_string = append_with_separator(rs_values['avg'].toFixed(3), final_string);
-    final_string = append_with_separator(pr_values['avg'].toFixed(3), final_string);
-    final_string = append_with_separator(ta_values['min'].toFixed(3), final_string);
-    final_string = append_with_separator(hr_values['min'].toFixed(3), final_string);
-    final_string = append_with_separator(vv_values['min'].toFixed(3), final_string);
-    final_string = append_with_separator(rs_values['min'].toFixed(3), final_string);
-    final_string = append_with_separator(pr_values['min'].toFixed(3), final_string);
-    final_string = append_with_separator(ta_values['max'].toFixed(3), final_string);
-    final_string = append_with_separator(hr_values['max'].toFixed(3), final_string);
-    final_string = append_with_separator(vv_values['max'].toFixed(3), final_string);
-    final_string = append_with_separator(rs_values['max'].toFixed(3), final_string);
-    final_string = append_with_separator(pr_values['max'].toFixed(3), final_string);
-    final_string = append_with_separator(wind_velocity.toFixed(3), final_string);
-    final_string = append_with_separator(sat_steam['e_t_max'].toFixed(3), final_string);
-    final_string = append_with_separator(sat_steam['e_t_min'].toFixed(3), final_string);
-    final_string = append_with_separator(sat_steam['avg_p'].toFixed(3), final_string);
-    final_string = append_with_separator(saturation_slope.toFixed(3), final_string);
-    final_string = append_with_separator(p_real.toFixed(3), final_string);
-    final_string = append_with_separator(steam_pressure_deficit.toFixed(3), final_string);
-    final_string = append_with_separator(solar_radiation.toFixed(3), final_string);
-    final_string = append_with_separator(julian_day.toFixed(3), final_string);
-    final_string = append_with_separator(relative_distance.toFixed(3), final_string);
-    final_string = append_with_separator(solar_declination.toFixed(3), final_string);
-    final_string = append_with_separator(hourly_radicion_angle['value_b'].toFixed(3), final_string);
-    final_string = append_with_separator(hourly_radicion_angle['seccional_correction'].toFixed(3), final_string);
-    final_string = append_with_separator(hourly_radicion_angle['sunset'].toFixed(3), final_string);
-    final_string = append_with_separator(hourly_radicion_angle['sun_middle_point'].toFixed(3), final_string);
-    final_string = append_with_separator(hourly_radicion_angle['start'].toFixed(3), final_string);
-    final_string = append_with_separator(hourly_radicion_angle['end'].toFixed(3), final_string);
-    final_string = append_with_separator(extraterrestrial_radiation.toFixed(3), final_string);
-    final_string = append_with_separator(max_duration.toFixed(3), final_string);
-    final_string = append_with_separator(r_so.toFixed(3), final_string);
-    final_string = append_with_separator(radiations['short_wave'].toFixed(3), final_string);
-    final_string = append_with_separator(radiations['relative'].toFixed(3), final_string);
-    final_string = append_with_separator(radiations['long_wave'].toFixed(3), final_string);
-    final_string = append_with_separator(radiations['net'].toFixed(3), final_string);
-    final_string = append_with_separator(soil_heat_flux.toFixed(3), final_string);
-    final_string = append_with_separator(evapotranspiration.toFixed(3), final_string);
-    return final_string;
-}
+import { Dispatch, SetStateAction } from 'react';
 
 type IndexDate = { [year: number]: { [month: number]: { [day: number]: number[] } } };
+
+function excelDateToJS(excelDate: number): Date {
+    const excelEpoch = new Date(1899, 11, 30);
+    const daysToAdd = excelDate - 0; // Subtract 1 day because Excel erroneously considers 1900 as a leap year // dont subtract!!!
+    const millisecondsPerDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const totalMilliseconds = daysToAdd * millisecondsPerDay; // Calculate the number of milliseconds since Excel's epoch
+    const newDate = new Date(excelEpoch.getTime() + totalMilliseconds);
+    return newDate;
+}
 
 function indexByDate(data: Date[]): IndexDate {
     const indexDate: IndexDate = {};
 
     data.forEach((date, index) => {
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1; // JavaScript months are zero-based
-        const day = date.getDate();
+        const year = date.getUTCFullYear();
+        const month = date.getUTCMonth() + 1; // JavaScript months are zero-based
+        const day = date.getUTCDate();
 
         if (!indexDate[year]) {
             indexDate[year] = {};
@@ -103,8 +48,7 @@ function getDataAt(data: SoilData, indexes: number[]): SoilData {
         new_data.TA.push(data.TA[index]);
         new_data.HR.push(data.HR[index]);
         new_data.VV.push(data.VV[index]);
-        new_data.RS.push(data.RS[index]);
-        new_data.PR.push(data.PR[index]);
+        new_data.RS.push(data.RS[index]); new_data.PR.push(data.PR[index]);
     });
 
     return new_data;
@@ -346,22 +290,23 @@ function runScenario(
     inputEndDate: Record<string, string>,
     data: SoilData,
     constants: SolarRadiationConstants,
-    interval: number = 0
+    resultsData: string[],
+    setResultsData: Dispatch<SetStateAction<Array<string>>>
 ): boolean {
     const indexedData = indexByDate(data.date);
 
     // For start date
     const startDate: { year: number; month: number; day: number } = {
-        year: inputStartDate.year === "" ? data.date[0].getFullYear() : parseInt(inputStartDate.year),
-        month: inputStartDate.month === "" ? data.date[0].getMonth() + 1 : parseInt(inputStartDate.month),
-        day: inputStartDate.day === "" ? data.date[0].getDate() : parseInt(inputStartDate.day)
+        year: inputStartDate.year === "" ? data.date[0].getUTCFullYear() : parseInt(inputStartDate.year),
+        month: inputStartDate.month === "" ? data.date[0].getUTCMonth() + 1 : parseInt(inputStartDate.month),
+        day: inputStartDate.day === "" ? data.date[0].getUTCDate() : parseInt(inputStartDate.day)
     };
     
     // For end date
     const endDate: { year: number; month: number; day: number } = {
-        year: inputEndDate.year === "" ? data.date[data.date.length - 1].getFullYear() : parseInt(inputEndDate.year),
-        month: inputEndDate.month === "" ? data.date[data.date.length - 1].getMonth() + 1 : parseInt(inputEndDate.month),
-        day: inputEndDate.day === "" ? data.date[data.date.length - 1].getDate() : parseInt(inputEndDate.day)
+        year: inputEndDate.year === "" ? data.date[data.date.length - 1].getUTCFullYear() : parseInt(inputEndDate.year),
+        month: inputEndDate.month === "" ? data.date[data.date.length - 1].getUTCMonth() + 1 : parseInt(inputEndDate.month),
+        day: inputEndDate.day === "" ? data.date[data.date.length - 1].getUTCDate() : parseInt(inputEndDate.day)
     };
 
 
@@ -372,38 +317,35 @@ function runScenario(
 
     console.log(startDate, data.date[0], endDate, data.date[data.date.length-1])
     if (
-        startDate.year < data.date[0].getFullYear() ||
-        (startDate.month < data.date[0].getFullYear()) ||
-        (startDate.day < data.date[0].getDate() && startDate.year === data.date[0].getFullYear() && startDate.month === data.date[0].getMonth())
+        startDate.year < data.date[0].getUTCFullYear() ||
+        (startDate.month < data.date[0].getUTCFullYear()) ||
+        (startDate.day < data.date[0].getUTCDate() && startDate.year === data.date[0].getUTCFullYear() && startDate.month === (data.date[0].getUTCMonth() + 1))
     ) {
         console.log('adjusting start date');
-        startDate.year = data.date[0].getFullYear();
-        startDate.month = data.date[0].getMonth();
-        startDate.day = data.date[0].getDate();
+        startDate.year = data.date[0].getUTCFullYear();
+        startDate.month = data.date[0].getUTCMonth() + 1;
+        startDate.day = data.date[0].getUTCDate();
     }
 
     if (
-        endDate.year > data.date[data.date.length - 1].getFullYear() ||
-        (endDate.month > data.date[data.date.length - 1].getFullYear()) ||
-        (endDate.day > data.date[data.date.length - 1].getDate() && endDate.year === data.date[data.date.length - 1].getFullYear() && endDate.month === data.date[data.date.length - 1].getMonth())
+        endDate.year > data.date[data.date.length - 1].getUTCFullYear() ||
+        (endDate.month > data.date[data.date.length - 1].getUTCFullYear()) ||
+        (endDate.day > data.date[data.date.length - 1].getUTCDate() && endDate.year === data.date[data.date.length - 1].getUTCFullYear() && endDate.month === (data.date[data.date.length - 1].getUTCMonth() + 1))
     ) {
         console.log('adjusting end date');
-        endDate.year = data.date[data.date.length - 1].getFullYear();
-        endDate.month = data.date[data.date.length - 1].getMonth();
-        endDate.day = data.date[data.date.length - 1].getDate();
+        endDate.year = data.date[data.date.length - 1].getUTCFullYear();
+        endDate.month = data.date[data.date.length - 1].getUTCMonth() + 1;
+        endDate.day = data.date[data.date.length - 1].getUTCDate();
     }
 
-    console.log(startDate);
-    console.log(endDate);
-
-    const csvResults: string[] = [];
+    const csvResults: string[] = resultsData;
 
     let amountOfDays = 0;
     let prevTaAvg = 0;
 
     for (let year = startDate.year; year <= endDate.year; year++) {
         for (let month = startDate.month; month <= endDate.month; month++) {
-            for (let day = startDate.day; day <= endDate.day; day++) {
+            for (let day = startDate.day; day <= (month == endDate.month ? endDate.day : 30); day++) {
                 amountOfDays++;
                 const dayData = getDataAt(data, indexedData[year][month][day]);
 
@@ -436,6 +378,7 @@ function runScenario(
             }
         }
     }
+    setResultsData(csvResults);
     return true;
 }
 
@@ -457,9 +400,11 @@ interface UIProps {
     endDateDaySv: number;
     endDateYearSv: number;
     psicrometricSv: number;
+    resultsData: string[];
+    setResultsData: Dispatch<SetStateAction<Array<string>>>;
 }
  
-export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, centerLongDecimalsSv, longDecimalsSv, solarSv, heightSv, albedoSv, caloricCapacitySv, soilDepthSv, startDateMonthSv, startDateDaySv, startDateYearSv, endDateMonthSv, endDateDaySv, endDateYearSv, psicrometricSv}: Readonly<UIProps> ) {
+export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, centerLongDecimalsSv, longDecimalsSv, solarSv, heightSv, albedoSv, caloricCapacitySv, soilDepthSv, startDateMonthSv, startDateDaySv, startDateYearSv, endDateMonthSv, endDateDaySv, endDateYearSv, psicrometricSv, resultsData, setResultsData}: Readonly<UIProps> ) {
     const [spreadsheetData, setSpreadsheetData] = useState<SoilData>({'date': [], 'H': [], 'TA': [], 'HR': [], 'VV': [], 'RS': [], 'PR': []});
     const [file, setFile] = useState(null);
 
@@ -476,13 +421,10 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
         let data: TestData = XLSX.utils.sheet_to_json(ws);
         if (data) {
             data.forEach((row) => {
-                const excelEpoch = new Date(1899, 11, 30);
-                const daysToAdd = row.date - 0; // Subtract 1 day because Excel erroneously considers 1900 as a leap year // dont subtract!!!
-                const millisecondsPerDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-                const totalMilliseconds = daysToAdd * millisecondsPerDay; // Calculate the number of milliseconds since Excel's epoch
-                const newDate = new Date(excelEpoch.getTime() + totalMilliseconds);
-                if (!newDate) console.log('oh boi');
-                spreadsheet_data.date.push(newDate);
+                if (excelDateToJS(row.date).getUTCMonth() < 12) {
+                    console.log(excelDateToJS(row.date).toUTCString(), row.date);
+                }
+                spreadsheet_data.date.push(excelDateToJS(row.date));
                 spreadsheet_data.H.push(row.H);
                 spreadsheet_data.TA.push(parseFloat(row.TA));
                 spreadsheet_data.HR.push(row.HR as number);
@@ -521,7 +463,7 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
             day: String(endDateDaySv),
             year: String(endDateYearSv)
         };
-        const result = runScenario(start_date, end_date, spreadsheetData, constants);
+        runScenario(start_date, end_date, spreadsheetData, constants, resultsData, setResultsData);
     }
 
     return(
@@ -530,6 +472,7 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
             <Button onClick={() => file_to_wb(file, load_data)}>Process File</Button>
             <Button onClick={() => console.log(spreadsheetData)}>Print</Button>
             <Button onClick={() => runScenarioExample()}>Calculate</Button>
+            <Button onClick={() => {console.log(resultsData)}}>Results</Button>
         </>
     )
 }
