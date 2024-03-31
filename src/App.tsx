@@ -4,6 +4,7 @@ import UI from './components/ui';
 import { useState, useEffect } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import ResultsTable, { ResultsTableRow, ResultsTableData } from './components/resultsTable';
+import MainFrame from './components/mainFrame';
 
 function calculateDecimalDegrees(degrees: number, minutes: number, seconds: number): number {
   return degrees + (minutes / 60) + (seconds / 3600);
@@ -94,7 +95,7 @@ function App() {
   const [endDateYearSv, setEndDateYearSv]                = useState(endDate?.year());
   const [endDateMonthSv, setEndDateMonthSv]              = useState(endDate?.month());
   const [endDateDaySv, setEndDateDaySv]                  = useState(endDate?.day());
-  const [resultsData, setResultsData]                    = useState<ResultsTableData>([createData("12/1/2019", 1, 15.244, 71.326, 2.413, 265.733, 10.135, 11.300, 57.000, 0.080, 0.000, 4.600, 18.400, 80.000, 8.790, 1385.000, 13.100, 1.934, 2.116, 1.339, 1.728, 0.111, 1.139, 0.589, 22.959, 335.667, 1.029, -0.388, 4.396, 0.160, 1.499, 0.148, 0.018, 0.279, 1.438, 11.454, 1.140, 17.679, 20.141, 0.000, 17.679, 3.201, 4.261)]);
+  const [resultsData, setResultsData]                    = useState<ResultsTableData>([]);
 
   useEffect(() => {
     if (startDate) {
@@ -137,6 +138,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+          <MainFrame />
           <InputFrame 
             latDegreesSv={latDegreesSv} 
             setLatDegreesSv={setLatDegreesSv} 

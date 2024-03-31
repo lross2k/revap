@@ -207,85 +207,6 @@ function calculateEvapotranspiration(saturation_slope: number, net_radiation: nu
     return evapotranspiration;
 }
 
-function appendWithSeparator(source: string, destination: string): string {
-    let transformed: string = destination;
-    transformed = transformed + ";" + source;
-    return transformed;
-}
-
-function stringifyIteration(
-    taValues: Record<string, number>,
-    hrValues: Record<string, number>,
-    vvValues: Record<string, number>,
-    rsValues: Record<string, number>,
-    prValues: Record<string, number>,
-    windVelocity: number,
-    saturationSlope: number,
-    satSteam: Record<string, number>,
-    pReal: number,
-    steamPressureDeficit: number,
-    solarRadiation: number,
-    julianDay: number,
-    relativeDistance: number,
-    solarDeclination: number,
-    hourlyRadicionAngle: Record<string, number>,
-    extraterrestrialRadiation: number,
-    maxDuration: number,
-    rSo: number,
-    radiations: Record<string, number>,
-    soilHeatFlux: number,
-    evapotranspiration: number,
-    year: number,
-    month: number,
-    day: number,
-    amountOfDays: number
-): string {
-    let finalString: string = `${month}/${day}/${year}`;
-    finalString = appendWithSeparator(String(amountOfDays), finalString);
-    finalString = appendWithSeparator((taValues['avg']).toFixed(3), finalString);
-    finalString = appendWithSeparator((hrValues['avg']).toFixed(3), finalString);
-    finalString = appendWithSeparator((vvValues['avg']).toFixed(3), finalString);
-    finalString = appendWithSeparator((rsValues['avg']).toFixed(3), finalString);
-    finalString = appendWithSeparator((prValues['avg']).toFixed(3), finalString);
-    finalString = appendWithSeparator((taValues['min']).toFixed(3), finalString);
-    finalString = appendWithSeparator((hrValues['min']).toFixed(3), finalString);
-    finalString = appendWithSeparator((vvValues['min']).toFixed(3), finalString);
-    finalString = appendWithSeparator((rsValues['min']).toFixed(3), finalString);
-    finalString = appendWithSeparator((prValues['min']).toFixed(3), finalString);
-    finalString = appendWithSeparator((taValues['max']).toFixed(3), finalString);
-    finalString = appendWithSeparator((hrValues['max']).toFixed(3), finalString);
-    finalString = appendWithSeparator((vvValues['max']).toFixed(3), finalString);
-    finalString = appendWithSeparator((rsValues['max']).toFixed(3), finalString);
-    finalString = appendWithSeparator((prValues['max']).toFixed(3), finalString);
-    finalString = appendWithSeparator(windVelocity.toFixed(3), finalString);
-    finalString = appendWithSeparator((satSteam['e_t_max']).toFixed(3), finalString);
-    finalString = appendWithSeparator((satSteam['e_t_min']).toFixed(3), finalString);
-    finalString = appendWithSeparator((satSteam['avg_p']).toFixed(3), finalString);
-    finalString = appendWithSeparator(saturationSlope.toFixed(3), finalString);
-    finalString = appendWithSeparator(pReal.toFixed(3), finalString);
-    finalString = appendWithSeparator(steamPressureDeficit.toFixed(3), finalString);
-    finalString = appendWithSeparator(solarRadiation.toFixed(3), finalString);
-    finalString = appendWithSeparator(julianDay.toFixed(3), finalString);
-    finalString = appendWithSeparator(relativeDistance.toFixed(3), finalString);
-    finalString = appendWithSeparator(solarDeclination.toFixed(3), finalString);
-    finalString = appendWithSeparator((hourlyRadicionAngle['value_b']).toFixed(3), finalString);
-    finalString = appendWithSeparator((hourlyRadicionAngle['seccional_correction']).toFixed(3), finalString);
-    finalString = appendWithSeparator((hourlyRadicionAngle['sunset']).toFixed(3), finalString);
-    finalString = appendWithSeparator((hourlyRadicionAngle['sun_middle_point']).toFixed(3), finalString);
-    finalString = appendWithSeparator((hourlyRadicionAngle['start']).toFixed(3), finalString);
-    finalString = appendWithSeparator((hourlyRadicionAngle['end']).toFixed(3), finalString);
-    finalString = appendWithSeparator(extraterrestrialRadiation.toFixed(3), finalString);
-    finalString = appendWithSeparator(maxDuration.toFixed(3), finalString);
-    finalString = appendWithSeparator(rSo.toFixed(3), finalString);
-    finalString = appendWithSeparator((radiations['short_wave']).toFixed(3), finalString);
-    finalString = appendWithSeparator((radiations['relative']).toFixed(3), finalString);
-    finalString = appendWithSeparator((radiations['long_wave']).toFixed(3), finalString);
-    finalString = appendWithSeparator((radiations['net']).toFixed(3), finalString);
-    finalString = appendWithSeparator(soilHeatFlux.toFixed(3), finalString);
-    finalString = appendWithSeparator(evapotranspiration.toFixed(3), finalString);
-    return finalString;
-}
-
 function runScenario(
     inputStartDate: Record<string, string>,
     inputEndDate: Record<string, string>,
@@ -378,7 +299,7 @@ function runScenario(
             }
         }
     }
-    setResultsData(csvResults);
+    setResultsData([...csvResults]);
     return true;
 }
 
@@ -470,12 +391,7 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
         <>
             <FileUploader handleChange={handleChange} name="file" types={fileTypes} />
             <Button onClick={() => file_to_wb(file, load_data)}>Process File</Button>
-            <Button onClick={() => {
-                console.log(spreadsheetData)
-                console.log(resultsData)
-            }}>Print</Button>
             <Button onClick={() => runScenarioExample()}>Calculate</Button>
-            <Button onClick={() => {console.log(resultsData)}}>Results</Button>
         </>
     )
 }

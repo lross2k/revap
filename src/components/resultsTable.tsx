@@ -109,7 +109,7 @@ export default function ResultsTable( { resultsData }: Readonly<ResultsTableProp
             <TableCell>Cálculo de ET</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Día;</TableCell>
+            <TableCell>Día</TableCell>
             <TableCell>Número de días</TableCell>
             <TableCell>TA</TableCell>
             <TableCell>HR</TableCell>
@@ -195,7 +195,7 @@ export default function ResultsTable( { resultsData }: Readonly<ResultsTableProp
             <TableCell>Rs/Rso</TableCell>
             <TableCell>MJ/ m^(2) *día</TableCell>
             <TableCell>MJ/ m^(2) *dia</TableCell>
-            <TableCell>MJ/ m^(2)*diamm/dia"</TableCell>
+            <TableCell>MJ/ m^(2)*diamm/dia</TableCell>
             <TableCell></TableCell>
           </TableRow>
         </TableHead>
