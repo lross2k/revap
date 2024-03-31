@@ -6,6 +6,11 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Dayjs } from 'dayjs';
 import { Dispatch, SetStateAction } from 'react';
+import { styled } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Unstable_Grid2';
+import { FormHelperText } from '@mui/material';
 
 interface CellProps {
     label?:     string;
@@ -13,6 +18,36 @@ interface CellProps {
     disabled?:  boolean;
     value?:     string;
     onChange?:  Dispatch<SetStateAction<number>> | undefined;
+}
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+}));
+
+function CellV2( {label = '', units = '', value = '', disabled = false, onChange}: Readonly<CellProps> ) {
+    return (
+        <FormControl disabled={disabled} sx={{ m: 1 }} variant="outlined">
+            <OutlinedInput
+            id="outlined-adornment-weight"
+            value={value}
+            endAdornment={<InputAdornment position="end">{units}</InputAdornment>}
+            aria-describedby="outlined-weight-helper-text"
+            inputProps={{
+              'aria-label': label,
+            }}
+            onChange={(event) => {
+                if (onChange) {
+                    onChange(parseFloat(event.target.value));
+                }
+            }}
+            />
+            <FormHelperText id="outlined-weight-helper-text">Weight</FormHelperText>
+        </FormControl>
+    );
 }
 
 function Cell( {label = '', units = '', value = '', disabled = false, onChange}: Readonly<CellProps> ) {
@@ -160,6 +195,28 @@ export default function InputFrame( {
 
     return(
         <>
+<Box sx={{ flexGrow: 1 }}>
+      <Grid container spacing={2} >
+        <Grid xs={3}>
+          <Item>Altura</Item>
+        </Grid>
+        <Grid xs={3}>
+            <CellV2 label='Altura' units='msnm' value={String(heightSv)} onChange={setHeightSv} />
+        </Grid>
+        <Grid xs={3}>
+          <Item>Albedo</Item>
+        </Grid>
+        <Grid xs={3}>
+            <CellV2 label='Albedo' units='-' value={String(albedoSv)} onChange={setAlbedoSv} />
+        </Grid>
+        <Grid xs={3}>
+          <Item>xs=8</Item>
+        </Grid>
+        <Grid xs={3}>
+          <Item>xs=8</Item>
+        </Grid>
+      </Grid>
+    </Box>
             <div style={{display: 'flex', flexDirection: 'row'}}>
                 {/* height_sv */}
                 <Cell label='Altura' units='msnm' value={String(heightSv)} onChange={setHeightSv} />
