@@ -6,25 +6,59 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-function createData(
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number,
-) {
-  return { name, calories, fat, carbs, protein };
-}
+export interface ResultsTableRow {
+  col1: string;
+  col2: number;
+  col3: number;
+  col4: number;
+  col5: number;
+  col6: number;
+  col7: number;
+  col8: number;
+  col9: number;
+  col10: number;
+  col11: number;
+  col12: number;
+  col13: number;
+  col14: number;
+  col15: number;
+  col16: number;
+  col17: number;
+  col18: number;
+  col19: number;
+  col20: number;
+  col21: number;
+  col22: number;
+  col23: number;
+  col24: number;
+  col25: number;
+  col26: number;
+  col27: number;
+  col28: number;
+  col29: number;
+  col30: number;
+  col31: number;
+  col32: number;
+  col33: number;
+  col34: number;
+  col35: number;
+  col36: number;
+  col37: number;
+  col38: number;
+  col39: number;
+  col40: number;
+  col41: number;
+  col42: number;
+  col43: number;
+};
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
+export type ResultsTableData = Array<ResultsTableRow>;
 
-export default function ResultsTable() {
+interface ResultsTableProps {
+  resultsData: ResultsTableData;
+};
+
+export default function ResultsTable( { resultsData }: Readonly<ResultsTableProps> ) {
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -166,18 +200,55 @@ export default function ResultsTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {resultsData.map((row) => (
             <TableRow
-              key={row.name}
+              key={row.col1}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {row.name}
+                {row.col1}
               </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
+              <TableCell align="right">{row.col2}</TableCell>
+              <TableCell align="right">{row.col3}</TableCell>
+              <TableCell align="right">{row.col5}</TableCell>
+              <TableCell align="right">{row.col6}</TableCell>
+              <TableCell align="right">{row.col7}</TableCell>
+              <TableCell align="right">{row.col8}</TableCell>
+              <TableCell align="right">{row.col9}</TableCell>
+              <TableCell align="right">{row.col10}</TableCell>
+              <TableCell align="right">{row.col11}</TableCell>
+              <TableCell align="right">{row.col12}</TableCell>
+              <TableCell align="right">{row.col13}</TableCell>
+              <TableCell align="right">{row.col14}</TableCell>
+              <TableCell align="right">{row.col15}</TableCell>
+              <TableCell align="right">{row.col16}</TableCell>
+              <TableCell align="right">{row.col17}</TableCell>
+              <TableCell align="right">{row.col18}</TableCell>
+              <TableCell align="right">{row.col19}</TableCell>
+              <TableCell align="right">{row.col20}</TableCell>
+              <TableCell align="right">{row.col21}</TableCell>
+              <TableCell align="right">{row.col22}</TableCell>
+              <TableCell align="right">{row.col23}</TableCell>
+              <TableCell align="right">{row.col24}</TableCell>
+              <TableCell align="right">{row.col25}</TableCell>
+              <TableCell align="right">{row.col26}</TableCell>
+              <TableCell align="right">{row.col27}</TableCell>
+              <TableCell align="right">{row.col28}</TableCell>
+              <TableCell align="right">{row.col29}</TableCell>
+              <TableCell align="right">{row.col30}</TableCell>
+              <TableCell align="right">{row.col31}</TableCell>
+              <TableCell align="right">{row.col32}</TableCell>
+              <TableCell align="right">{row.col33}</TableCell>
+              <TableCell align="right">{row.col34}</TableCell>
+              <TableCell align="right">{row.col35}</TableCell>
+              <TableCell align="right">{row.col36}</TableCell>
+              <TableCell align="right">{row.col37}</TableCell>
+              <TableCell align="right">{row.col38}</TableCell>
+              <TableCell align="right">{row.col39}</TableCell>
+              <TableCell align="right">{row.col40}</TableCell>
+              <TableCell align="right">{row.col41}</TableCell>
+              <TableCell align="right">{row.col42}</TableCell>
+              <TableCell align="right">{row.col43}</TableCell>
             </TableRow>
           ))}
         </TableBody>

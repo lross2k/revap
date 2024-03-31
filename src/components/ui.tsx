@@ -3,6 +3,8 @@ import { FileUploader } from "react-drag-drop-files";
 import Button from '@mui/material/Button';
 import XLSX from 'xlsx'
 import { Dispatch, SetStateAction } from 'react';
+import { ResultsTableData } from './resultsTable';
+import { createData } from '../App';
 
 type IndexDate = { [year: number]: { [month: number]: { [day: number]: number[] } } };
 
@@ -32,7 +34,6 @@ function indexByDate(data: Date[]): IndexDate {
         if (!indexDate[year][month][day]) {
             indexDate[year][month][day] = [];
         }
-
         indexDate[year][month][day].push(index);
     });
 
@@ -290,8 +291,8 @@ function runScenario(
     inputEndDate: Record<string, string>,
     data: SoilData,
     constants: SolarRadiationConstants,
-    resultsData: string[],
-    setResultsData: Dispatch<SetStateAction<Array<string>>>
+    resultsData: ResultsTableData,
+    setResultsData: Dispatch<SetStateAction<ResultsTableData>>
 ): boolean {
     const indexedData = indexByDate(data.date);
 
@@ -338,7 +339,7 @@ function runScenario(
         endDate.day = data.date[data.date.length - 1].getUTCDate();
     }
 
-    const csvResults: string[] = resultsData;
+    const csvResults: ResultsTableData = resultsData;
 
     let amountOfDays = 0;
     let prevTaAvg = 0;
@@ -372,8 +373,7 @@ function runScenario(
                 const soilHeatFlux = calculateSoilHeatFlux(constants, taValues.avg, prevTaAvg, amountOfDays);
                 const evapotranspiration = calculateEvapotranspiration(saturationSlope, radiations.net, soilHeatFlux, windVelocity, taValues.avg, steamPressureDeficit, constants);
 
-                csvResults.push(stringifyIteration(taValues, hrValues, vvValues, rsValues, prValues, windVelocity, saturationSlope, satSteam, pReal, steamPressureDeficit, solarRadiation, julianDay, relativeDistance, solarDeclination, hourlyRadicionAngle, extraterrestrialRadiation, maxDuration, rSo, radiations, soilHeatFlux, evapotranspiration, year, month, day, amountOfDays));
-
+                csvResults.push(createData(`${month}/${day}/${year}`, amountOfDays, taValues['avg'], hrValues['avg'], vvValues['avg'], rsValues['avg'], prValues['avg'], taValues['min'], hrValues['min'], vvValues['min'], rsValues['min'], prValues['min'], taValues['max'], hrValues['max'], vvValues['max'], rsValues['max'], prValues['max'], windVelocity, satSteam['e_t_max'], satSteam['e_t_min'], satSteam['avg_p'], saturationSlope, pReal, steamPressureDeficit, solarRadiation, julianDay, relativeDistance, solarDeclination, hourlyRadicionAngle['value_b'], hourlyRadicionAngle['seccional_correction'], hourlyRadicionAngle['sunset'], hourlyRadicionAngle['sun_middle_point'], hourlyRadicionAngle['start'], hourlyRadicionAngle['end'], extraterrestrialRadiation, maxDuration, rSo, radiations['short_wave'], radiations['relative'], radiations['long_wave'], radiations['net'], soilHeatFlux, evapotranspiration));
                 prevTaAvg = taValues.avg;
             }
         }
@@ -400,8 +400,8 @@ interface UIProps {
     endDateDaySv: number;
     endDateYearSv: number;
     psicrometricSv: number;
-    resultsData: string[];
-    setResultsData: Dispatch<SetStateAction<Array<string>>>;
+    resultsData: ResultsTableData;
+    setResultsData: Dispatch<SetStateAction<ResultsTableData>>;
 }
  
 export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, centerLongDecimalsSv, longDecimalsSv, solarSv, heightSv, albedoSv, caloricCapacitySv, soilDepthSv, startDateMonthSv, startDateDaySv, startDateYearSv, endDateMonthSv, endDateDaySv, endDateYearSv, psicrometricSv, resultsData, setResultsData}: Readonly<UIProps> ) {
@@ -470,7 +470,10 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
         <>
             <FileUploader handleChange={handleChange} name="file" types={fileTypes} />
             <Button onClick={() => file_to_wb(file, load_data)}>Process File</Button>
-            <Button onClick={() => console.log(spreadsheetData)}>Print</Button>
+            <Button onClick={() => {
+                console.log(spreadsheetData)
+                console.log(resultsData)
+            }}>Print</Button>
             <Button onClick={() => runScenarioExample()}>Calculate</Button>
             <Button onClick={() => {console.log(resultsData)}}>Results</Button>
         </>

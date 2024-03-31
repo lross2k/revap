@@ -3,7 +3,7 @@ import InputFrame from './components/inputFrame';
 import UI from './components/ui';
 import { useState, useEffect } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import ResultsTable from './components/resultsTable';
+import ResultsTable, { ResultsTableRow, ResultsTableData } from './components/resultsTable';
 
 function calculateDecimalDegrees(degrees: number, minutes: number, seconds: number): number {
   return degrees + (minutes / 60) + (seconds / 3600);
@@ -12,6 +12,57 @@ function calculateDecimalDegrees(degrees: number, minutes: number, seconds: numb
 function deg2Rad(degrees: number): number {
   return degrees * Math.PI / 180.0;
 }
+
+export function createData(
+  col1: string,
+  col2: number,
+  col3: number,
+  col4: number,
+  col5: number,
+  col6: number,
+  col7: number,
+  col8: number,
+  col9: number,
+  col10: number,
+  col11: number,
+  col12: number,
+  col13: number,
+  col14: number,
+  col15: number,
+  col16: number,
+  col17: number,
+  col18: number,
+  col19: number,
+  col20: number,
+  col21: number,
+  col22: number,
+  col23: number,
+  col24: number,
+  col25: number,
+  col26: number,
+  col27: number,
+  col28: number,
+  col29: number,
+  col30: number,
+  col31: number,
+  col32: number,
+  col33: number,
+  col34: number,
+  col35: number,
+  col36: number,
+  col37: number,
+  col38: number,
+  col39: number,
+  col40: number,
+  col41: number,
+  col42: number,
+  col43: number
+): ResultsTableRow  {
+  return { col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, 
+    col15, col16, col17, col18, col19, col20, col21, col22, col23, col24, col25, col26, col27, 
+    col28, col29, col30, col31, col32, col33, col34, col35, col36, col37, col38, col39, col40, 
+    col41, col42, col43 };
+};
 
 function App() {
   const [heightSv, setHeightSv]                          = useState(2129);
@@ -43,7 +94,7 @@ function App() {
   const [endDateYearSv, setEndDateYearSv]                = useState(endDate?.year());
   const [endDateMonthSv, setEndDateMonthSv]              = useState(endDate?.month());
   const [endDateDaySv, setEndDateDaySv]                  = useState(endDate?.day());
-  const [resultsData, setResultsData]                    = useState<Array<string>>([]);
+  const [resultsData, setResultsData]                    = useState<ResultsTableData>([createData("12/1/2019", 1, 15.244, 71.326, 2.413, 265.733, 10.135, 11.300, 57.000, 0.080, 0.000, 4.600, 18.400, 80.000, 8.790, 1385.000, 13.100, 1.934, 2.116, 1.339, 1.728, 0.111, 1.139, 0.589, 22.959, 335.667, 1.029, -0.388, 4.396, 0.160, 1.499, 0.148, 0.018, 0.279, 1.438, 11.454, 1.140, 17.679, 20.141, 0.000, 17.679, 3.201, 4.261)]);
 
   useEffect(() => {
     if (startDate) {
@@ -154,7 +205,7 @@ function App() {
             setResultsData={setResultsData}
           />
       </header>
-      <ResultsTable />
+      <ResultsTable resultsData={resultsData}/>
     </div>
   );
 }
