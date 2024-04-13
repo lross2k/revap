@@ -267,7 +267,7 @@ function runScenario(
 
     for (let year = startDate.year; year <= endDate.year; year++) {
         for (let month = startDate.month; month <= endDate.month; month++) {
-            for (let day = startDate.day; day <= (month == endDate.month ? endDate.day : 30); day++) {
+            for (let day = startDate.day; day <= (month === endDate.month ? endDate.day : 30); day++) {
                 amountOfDays++;
                 const dayData = getDataAt(data, indexedData[year][month][day]);
 
@@ -390,8 +390,10 @@ export default function UI( {meassureHeightSv, latRadsSv, highestPointSv, center
     return(
         <>
             <FileUploader handleChange={handleChange} name="file" types={fileTypes} />
-            <Button onClick={() => file_to_wb(file, load_data)}>Process File</Button>
-            <Button onClick={() => runScenarioExample()}>Calculate</Button>
+            <Button variant='contained' onClick={() => {
+                file_to_wb(file, load_data)
+                runScenarioExample()
+            }}>Calcular</Button>
         </>
     )
 }

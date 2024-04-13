@@ -1,16 +1,14 @@
-import InputAdornment from '@mui/material/InputAdornment';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import { Dayjs } from 'dayjs';
+import Box from '@mui/material/Box';
+import { FormHelperText } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
+import { Dispatch, SetStateAction } from 'react';
 import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Dayjs } from 'dayjs';
-import { Dispatch, SetStateAction } from 'react';
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Unstable_Grid2';
-import { FormHelperText } from '@mui/material';
 
 interface CellProps {
     label?:     string;
@@ -19,14 +17,6 @@ interface CellProps {
     value?:     string;
     onChange?:  Dispatch<SetStateAction<number>> | undefined;
 }
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
 
 function CellV2( {label = '', units = '', value = '', disabled = false, onChange}: Readonly<CellProps> ) {
     return (
@@ -45,7 +35,7 @@ function CellV2( {label = '', units = '', value = '', disabled = false, onChange
                 }
             }}
             />
-            <FormHelperText id="outlined-weight-helper-text">Weight</FormHelperText>
+            <FormHelperText id="outlined-weight-helper-text">{label}</FormHelperText>
         </FormControl>
     );
 }
@@ -185,7 +175,6 @@ export default function InputFrame( {
     solarSv, setSolarSv,
     meassureHeightSv, setMeassureHeightSv,
     highestPointSv, setHighestPointSv,
-    caloricCapacitySv, setCaloricCapacitySv,
     soilDepthSv, setSoilDepthSv,
     pressureSv,
     psicrometricSv,
@@ -195,53 +184,34 @@ export default function InputFrame( {
 
     return(
         <>
-<Box sx={{ flexGrow: 1 }}>
-      <Grid container spacing={2} >
-        <Grid xs={3}>
-          <Item>Altura</Item>
-        </Grid>
-        <Grid xs={3}>
-            <CellV2 label='Altura' units='msnm' value={String(heightSv)} onChange={setHeightSv} />
-        </Grid>
-        <Grid xs={3}>
-          <Item>Albedo</Item>
-        </Grid>
-        <Grid xs={3}>
-            <CellV2 label='Albedo' units='-' value={String(albedoSv)} onChange={setAlbedoSv} />
-        </Grid>
-        <Grid xs={3}>
-          <Item>xs=8</Item>
-        </Grid>
-        <Grid xs={3}>
-          <Item>xs=8</Item>
-        </Grid>
-      </Grid>
-    </Box>
-            <div style={{display: 'flex', flexDirection: 'row'}}>
-                {/* height_sv */}
-                <Cell label='Altura' units='msnm' value={String(heightSv)} onChange={setHeightSv} />
-                {/* albedo_sv */}
-                <Cell label='Albedo' units='-' value={String(albedoSv)} onChange={setAlbedoSv} />
-                {/* solar_sv */}
-                <Cell label='Constante Solar' units='MJ/m^2 min' value={String(solarSv)} onChange={setSolarSv} />
-            </div>
-            <div style={{display: 'flex', flexDirection: 'row'}}>
-                {/* meassure_height_sv */}
-                <Cell label='Altura de medición' units='m' value={String(meassureHeightSv)} onChange={setMeassureHeightSv} />
-                {/* highest_point_sv */}
-                <Cell label='t=punto máximo' units='-' value={String(highestPointSv)} onChange={setHighestPointSv} />
-                {/* caloric_capacity_sv */}
-                <Cell label='Capacidad calorífica' units='MJ m-3 °C-1' value={String(caloricCapacitySv)} onChange={setCaloricCapacitySv} />
-            </div>
-            <div style={{display: 'flex', flexDirection: 'row'}}>
-                {/* soil_depth_sv */}
-                <Cell label='Δz=profundida del suelo' units='m' value={String(soilDepthSv)} onChange={setSoilDepthSv} />
-                {/* pressure_sv */}
-                <Cell label='Presión Atmosférica' units='kPa' disabled value={pressureSv.toFixed(2)} />
-                {/* psicrometric_sv */}
-                <Cell label='Constante psicrométrica (ϒ)' units='kPa /°C' disabled value={psicrometricSv.toFixed(2)} />
-            </div>
-
+            <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={2} >
+                    <Grid xs={3}>
+                        <CellV2 label='Altura' units='msnm' value={String(heightSv)} onChange={setHeightSv} />
+                    </Grid>
+                    <Grid xs={3}>
+                        <CellV2 label='Albedo' units='-' value={String(albedoSv)} onChange={setAlbedoSv} />
+                    </Grid>
+                    <Grid xs={3}>
+                        <CellV2 label='Constante Solar' units='MJ/m^2 min' value={String(solarSv)} onChange={setSolarSv} />
+                    </Grid>
+                    <Grid xs={3}>
+                        <CellV2 label='Altura de medición' units='m' value={String(meassureHeightSv)} onChange={setMeassureHeightSv} />
+                    </Grid>
+                    <Grid xs={3}>
+                        <CellV2 label='t=punto máximo' units='-' value={String(highestPointSv)} onChange={setHighestPointSv} />
+                    </Grid>
+                    <Grid xs={3}>
+                        <CellV2 label='Δz=profundida del suelo' units='m' value={String(soilDepthSv)} onChange={setSoilDepthSv} />
+                    </Grid>
+                    <Grid xs={3}>
+                        <CellV2 label='Presión Atmosférica' units='kPa' disabled value={pressureSv.toFixed(2)} />
+                    </Grid>
+                    <Grid xs={3}>
+                        <CellV2 label='Constante psicrométrica (ϒ)' units='kPa /°C' disabled value={psicrometricSv.toFixed(2)} />
+                    </Grid>
+                </Grid>
+            </Box>
             <HeaderRow />
             <LocationInputRow 
                 title='Latitud (φ)' 
@@ -285,7 +255,6 @@ export default function InputFrame( {
             />
 
             <div style={{display: 'flex', flexDirection: 'row'}}>
-                Inicio
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     value={startDate}
@@ -293,7 +262,6 @@ export default function InputFrame( {
                   />
                 </LocalizationProvider>
 
-                Fin
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     value={endDate}

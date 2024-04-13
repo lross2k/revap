@@ -61,7 +61,7 @@ interface ResultsTableProps {
 export default function ResultsTable( { resultsData }: Readonly<ResultsTableProps> ) {
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table sx={{ minWidth: 300 }} style={{ width: '90vw' }} aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell></TableCell>

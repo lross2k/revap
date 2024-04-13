@@ -139,6 +139,29 @@ function App() {
     <div className="App">
       <header className="App-header">
           <MainFrame />
+
+          <UI 
+            meassureHeightSv={meassureHeightSv} 
+            latRadsSv={latRadsSv} 
+            highestPointSv={highestPointSv} 
+            centerLongDecimalsSv={centerLongDecimalsSv} 
+            longDecimalsSv={longDecimalsSv} 
+            solarSv={solarSv} 
+            heightSv={heightSv} 
+            albedoSv={albedoSv} 
+            caloricCapacitySv={caloricCapacitySv} 
+            soilDepthSv={soilDepthSv} 
+            psicrometricSv={psicrometricSv} 
+            startDateMonthSv={startDateMonthSv} 
+            startDateDaySv={startDateDaySv} 
+            startDateYearSv={startDateYearSv} 
+            endDateMonthSv={endDateMonthSv} 
+            endDateDaySv={endDateDaySv} 
+            endDateYearSv={endDateYearSv}
+            resultsData={resultsData}
+            setResultsData={setResultsData}
+          />
+        
           <InputFrame 
             latDegreesSv={latDegreesSv} 
             setLatDegreesSv={setLatDegreesSv} 
@@ -185,27 +208,7 @@ function App() {
             setStartDate={setStartDate}
             setEndDate={setEndDate}
           />
-          <UI 
-            meassureHeightSv={meassureHeightSv} 
-            latRadsSv={latRadsSv} 
-            highestPointSv={highestPointSv} 
-            centerLongDecimalsSv={centerLongDecimalsSv} 
-            longDecimalsSv={longDecimalsSv} 
-            solarSv={solarSv} 
-            heightSv={heightSv} 
-            albedoSv={albedoSv} 
-            caloricCapacitySv={caloricCapacitySv} 
-            soilDepthSv={soilDepthSv} 
-            psicrometricSv={psicrometricSv} 
-            startDateMonthSv={startDateMonthSv} 
-            startDateDaySv={startDateDaySv} 
-            startDateYearSv={startDateYearSv} 
-            endDateMonthSv={endDateMonthSv} 
-            endDateDaySv={endDateDaySv} 
-            endDateYearSv={endDateYearSv}
-            resultsData={resultsData}
-            setResultsData={setResultsData}
-          />
+
       </header>
       <ResultsTable resultsData={resultsData}/>
     </div>
